@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khởi Sự F&B Thực Chiến APA — Andy Pham Academy</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --bg:#faf9f6; --card:#fff; --border:#e2ddd2; --border-strong:#c9c2b2;
+  --text:#2b2a26; --text-secondary:#6b6558; --text-muted:#9a9384;
+  --accent:#b5541f; --accent-bg:#f7ece3; --accent-text:#8a3f16;
+  --warn-bg:#fdf2df; --warn-text:#8a5a10; --warn-border:#e8c27a;
+  --ok-bg:#e9f3e5; --ok-text:#3c6b2d;
+  --danger-bg:#fbe9e7; --danger-text:#a13a2c;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{font-weight:700;font-size:15px;margin-bottom:2px}
+.brand-sub{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+.counter{background:var(--accent-bg);color:var(--accent-text);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-bottom:16px}
+.counter b{font-size:20px;display:block}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--text-secondary);margin-bottom:1px}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent-text);font-weight:600}
+.nav-item.done .dot{background:#3c6b2d}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border-strong);flex-shrink:0}
+.main{flex:1;padding:32px 40px;max-width:860px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:16px}
+h1{font-size:20px;margin:0 0 4px}
+h2{font-size:16px;margin:0 0 4px}
+.subtitle{font-size:13px;color:var(--text-secondary);margin:0 0 20px}
+label{display:block;font-size:13px;color:var(--text-secondary);margin:14px 0 4px}
+label.reason{color:var(--accent-text)}
+label.reason::before{content:"💬 ";}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:9px 11px;border:1px solid var(--border-strong);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)
+}
+textarea{resize:vertical;min-height:64px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:left}
+th{background:var(--bg);font-weight:600;font-size:12px;color:var(--text-secondary)}
+td input,td textarea{border:none;padding:4px;width:100%;background:transparent}
+td .auto-cell{font-weight:600;color:var(--accent-text)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--border-strong);background:#fff;font-size:13px;cursor:pointer;color:var(--text)}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#9c481a}
+.btn-add{font-size:12px;padding:5px 10px;margin-top:6px}
+.btn-link{background:none;border:none;color:var(--accent-text);text-decoration:underline;cursor:pointer;font-size:13px;padding:0}
+.footer-nav{display:flex;justify-content:space-between;margin-top:20px}
+.warning{display:flex;gap:8px;background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin:14px 0}
+.ok-msg{background:var(--ok-bg);color:var(--ok-text);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin:14px 0}
+.gate{max-width:600px}
+.gate-opt{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-size:14px}
+.gate-opt input{width:auto}
+.gate-error{background:var(--danger-bg);color:var(--danger-text);border-radius:var(--radius);padding:10px 12px;font-size:13px;margin-top:12px}
+.hidden{display:none}
+.todo-badge{background:var(--danger-bg);color:var(--danger-text);font-size:11px;padding:2px 8px;border-radius:6px;margin-left:8px;font-weight:600}
+.remove-row{color:var(--danger-text);cursor:pointer;font-size:12px;background:none;border:none}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.stat{background:var(--bg);border-radius:8px;padding:10px 12px}
+.stat .l{font-size:11px;color:var(--text-muted)}
+.stat .v{font-size:17px;font-weight:600}
+.small-note{font-size:12px;color:var(--text-muted);margin-top:4px}
+.field-check{color:var(--ok-text);font-weight:700;opacity:0;transition:opacity .2s ease;font-size:14px}
+.progress-panel{background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)}
+.progress-bar-track{height:6px;background:var(--border);border-radius:3px;margin-top:6px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .4s ease}
+.serious-banner{background:#2b2a26;color:#f3ede2;border-radius:12px;padding:16px 20px;margin-bottom:18px;font-size:14px;line-height:1.6;font-family:Georgia,serif;font-style:italic}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ok-bg);color:var(--ok-text);border-radius:12px;padding:12px 18px;font-size:14px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:999;animation:toastIn .3s ease-out,toastOut .3s ease-in 1.7s forwards}
+.toast.gate{background:var(--accent-bg);color:var(--accent-text)}
+@keyframes toastIn{from{transform:translateY(16px) scale(.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(-8px)}}
+.big-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#2b2a26;color:#f3ede2;border-radius:14px;padding:22px 28px;font-size:16px;text-align:center;max-width:360px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.3);animation:bigToastIn .35s ease-out,bigToastOut .4s ease-in 2.6s forwards}
+@keyframes bigToastIn{from{opacity:0;transform:translate(-50%,-50%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes bigToastOut{from{opacity:1}to{opacity:0;transform:translate(-50%,-50%) scale(.95)}}
+.terms-item{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-size:14px}
+.terms-item input{width:auto;margin-top:2px}
+@media(max-width:800px){.app{flex-direction:column}.sidebar{width:100%;height:auto;position:relative;overflow-x:auto;white-space:nowrap;display:flex;padding:12px}.nav-item{display:inline-flex;margin-right:4px}.main{padding:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">Andy Pham Academy</div>
+    <div class="brand-sub">Khởi Sự F&B Thực Chiến APA</div>
+    <div class="counter">Kế hoạch của bạn<b id="pageCount">0 trang</b></div>
+    <div class="progress-panel" id="progressPanel"></div>
+    <div id="navList"></div>
+  </div>
+  <div class="main" id="mainArea"></div>
+</div>
+
+<script>
+/* ============ ĐỌC SỐ TIỀN BẰNG CHỮ ============ */
+function readGroup(n){
+  const digits = ['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+  let s = '';
+  const hundred = Math.floor(n/100);
+  const tenUnit = n%100;
+  const ten = Math.floor(tenUnit/10);
+  const unit = tenUnit%10;
+  if(hundred>0){
+    s += digits[hundred] + ' trăm ';
+    if(tenUnit===0) return s.trim();
+  }
+  if(ten===0){
+    if(unit>0){ if(hundred>0) s += 'lẻ '; s += digits[unit]; }
+  } else if(ten===1){
+    s += 'mười '; if(unit===5) s += 'lăm'; else if(unit>0) s += digits[unit];
+  } else {
+    s += digits[ten] + ' mươi '; if(unit===1) s += 'mốt'; else if(unit===5) s += 'lăm'; else if(unit>0) s += digits[unit];
+  }
+  return s.trim();
+}
+function numberToVietnameseWords(numLike){
+  let num = Math.round(Number(numLike)||0);
+  if(num===0) return '';
+  if(num<0) return 'Âm ' + numberToVietnameseWords(-num).toLowerCase();
+  const units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+  let groups = []; let n = num;
+  while(n>0){ groups.push(n%1000); n = Math.floor(n/1000); }
+  let parts = [];
+  for(let i=groups.length-1;i>=0;i--){
+    if(groups[i]===0) continue;
+    parts.push(readGroup(groups[i]) + (units[i]?(' '+units[i]):''));
+  }
+  let result = parts.join(' ').replace(/\s+/g,' ').trim();
+  result = result.charAt(0).toUpperCase() + result.slice(1);
+  return result + ' đồng';
+}
+function formatVNDDisplay(digitsStr){
+  if(!digitsStr) return '';
+  return Number(digitsStr).toLocaleString('vi-VN');
+}
+
+/* ============ ĐỊNH NGHĨA CẤU TRÚC ============ */
+const SECTIONS = [
+  {id:'p0', title:'0. Thông tin nhanh'},
+  {id:'p0c', title:'Mục tiêu lợi nhuận'},
+  {id:'terms', title:'Cam kết trách nhiệm', gate:true},
+  {id:'p1', title:'1. Mô hình kinh doanh'},
+  {id:'p2', title:'2. Thị trường & khách hàng'},
+  {id:'gate3', title:'   Kiểm tra: phân tích đối thủ', gate:true},
+  {id:'p3', title:'3. Đối thủ cạnh tranh'},
+  {id:'p4', title:'4. Sản phẩm & giá'},
+  {id:'p5', title:'5. Địa điểm & mặt bằng'},
+  {id:'gate6', title:'   Kiểm tra: dự báo doanh thu', gate:true},
+  {id:'p6', title:'6. Dự báo doanh thu'},
+  {id:'gate78', title:'   Kiểm tra: CAPEX/OPEX', gate:true},
+  {id:'p7', title:'7. Vốn đầu tư (CAPEX)'},
+  {id:'p8', title:'8. Chi phí vận hành (OPEX)'},
+  {id:'gate9', title:'   Kiểm tra: điểm hoà vốn', gate:true},
+  {id:'p9', title:'9. Điểm hoà vốn'},
+  {id:'p11', title:'10. Dòng tiền 6 tháng đầu'},
+  {id:'p12', title:'11. Kế hoạch vận hành'},
+  {id:'p13', title:'12. Marketing & kênh bán'},
+  {id:'p14', title:'13. Pháp lý & giấy phép'},
+  {id:'p15', title:'14. Rủi ro & dự phòng'},
+  {id:'p0b', title:'Hồ sơ khởi nghiệp của bạn'},
+  {id:'p15b', title:'15. Thể chất & năng lượng'},
+  {id:'p16', title:'16. Lộ trình triển khai'},
+  {id:'review', title:'Phản biện & Xuất kế hoạch'},
+];
+
+const TERMS_CLAUSES = [
+  'Tôi hiểu đây là bài tự làm — tôi tự chịu trách nhiệm hoàn toàn với bản kế hoạch của mình.',
+  'Trong lúc làm bài, giảng viên sẽ không hỏi đáp thay tôi — tôi tự tìm câu trả lời trước khi hỏi.',
+  'Với thông tin đặc thù, khó — đã có trong bài giảng — tôi chủ động xem lại bài giảng trước khi hỏi bất kỳ ai.',
+  'Với thông tin không có trong bài giảng, tôi chủ động tự tìm kiếm (khảo sát thực tế, hỏi người có kinh nghiệm, tra cứu) thay vì chờ được cho sẵn đáp án.',
+  'Tôi hiểu đây là bài rèn năng lực tự xử lý mục tiêu và tự tìm kiếm thông tin — không phải bài kiểm tra kiến thức đơn thuần.',
+  'Tôi cam kết làm nghiêm túc, trung thực với chính bản thân — không làm cho có để đối phó.',
+];
+
+/* Câu hỏi gate — ĐÁP ÁN LÀ PLACEHOLDER, CẦN ANDY XÁC NHẬN/SỬA */
+const GATES = {
+  gate3: {
+    section:'Phần 3 — Phân tích đối thủ',
+    q:'Cách phân tích đối thủ ĐÚNG theo Andy Academy là gì? (chọn đủ, không thừa không thiếu)',
+    options:[
+      {t:'Đến trực tiếp quan sát giờ cao điểm và thấp điểm', correct:true},
+      {t:'Hỏi chuyện khách đang ngồi ăn tại quán đối thủ', correct:true},
+      {t:'Ghi lại giá menu và số lượng khách thực tế quan sát được', correct:true},
+      {t:'Chỉ cần đọc review trên Google/Facebook là đủ', correct:false},
+      {t:'Đoán số liệu dựa trên cảm nhận cá nhân khi đi ngang qua', correct:false},
+    ]
+  },
+  gate6: {
+    section:'Phần 6 — Dự báo doanh thu',
+    q:'[PLACEHOLDER — chờ Andy cung cấp nội dung thật] Phương pháp dự báo doanh thu nào được dạy tại Academy?',
+    options:[
+      {t:'[TODO] Phương pháp công suất theo từng khung giờ × giá trị hoá đơn', correct:true},
+      {t:'[TODO] Phương pháp benchmark theo m²', correct:false},
+      {t:'[TODO] Đoán theo cảm tính "chắc bán được nhiều"', correct:false},
+    ]
+  },
+  gate78: {
+    section:'Phần 7-8 — CAPEX & OPEX',
+    q:'Đâu là cách phân loại ĐÚNG một khoản chi phí?',
+    options:[
+      {t:'Chi phí mua thiết bị bếp một lần khi mở quán là CAPEX', correct:true},
+      {t:'Tiền nguyên vật liệu hàng tháng là OPEX', correct:true},
+      {t:'Tiền thuê mặt bằng hàng tháng là CAPEX', correct:false},
+      {t:'Không cần phân biệt CAPEX/OPEX, gộp chung một khoản vốn cũng được', correct:false},
+    ]
+  },
+  gate9: {
+    section:'Phần 9 — Điểm hoà vốn',
+    q:'Công thức điểm hoà vốn đúng là gì?',
+    options:[
+      {t:'Chi phí cố định / (1 − Chi phí biến đổi/Doanh thu)', correct:true},
+      {t:'Tổng vốn đầu tư / Số tháng mở quán', correct:false},
+      {t:'Doanh thu kỳ vọng − Lợi nhuận mong muốn', correct:false},
+    ]
+  },
+};
+
+/* ============ TRƯỜNG BẮT BUỘC — để tự động tick khi điền đủ ============ */
+const REQUIRED = {
+  p0: ['hoten','sdt','lydo','muctieu','quymovon'],
+  p0c: ['loinhuan_mucTieu'],
+  p1: ['ten','loaihinh','phankhuc','binhquan','menu','motaconcept','usp','giaithich'],
+  p2: ['dacthu','quymothitruong','hoatdong','giaithich_tp','giaithich_nhandien','giaithich_tontai','quymo','giaithich_quymo'],
+  p3: ['giaithich'],
+  p4: ['giaithich','giaithich_gia'],
+  p5: ['diachi','dientich','giathue','sochongoi','giaithich'],
+  p6: ['giatrihd','giaithich_congsuat','songaymở','kb_biquan_pct','kb_tb_pct','kb_xuatsac_pct','giaithich_xuatsac','giaithich_bipquan_hanhdong'],
+  p7: ['giaithich','sothangduphong'],
+  p8: ['thue','nvl_pct','nhansu','diennuoc','marketing_chiphi','khac'],
+  p9: ['soxuat','thoigian','giaithich'],
+  p11: [],
+  p12: ['quytrinh','ca','qc','nhansu','giaithich'],
+  p13: ['giaithich'],
+  p14: ['loaihinh','giayphep','hopdong','giaithich'],
+  p15: ['giaithich'],
+  p0b: ['hocgi','tunglam','sotruong','sodoan','tsc_congviec','kinhnghiem','thanhtuu'],
+  p15b: ['chuabiet','nentang','bietontên'],
+  p16: [],
+};
+function filled(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
+
+/* ============ STATE ============ */
+let state = JSON.parse(localStorage.getItem('khoiSuPlanState') || '{}');
+let gatesPassedState = JSON.parse(localStorage.getItem('khoiSuGatesPassed') || '{}');
+let currentIndex = 0;
+
+let _saveTimer = null;
+function saveState(){
+  updatePageCounter();
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    localStorage.setItem('khoiSuPlanState', JSON.stringify(state));
+    localStorage.setItem('khoiSuGatesPassed', JSON.stringify(gatesPassedState));
+    checkAutoCompleteRewards();
+    if(typeof renderNav==='function') renderNav();
+    if(typeof renderProgressPanel==='function') renderProgressPanel();
+  }, 350);
+}
+function get(path, def){
+  const parts = path.split('.');
+  let o = state;
+  for(const p of parts){ if(o==null) return def; o = o[p]; }
+  return o===undefined ? def : o;
+}
+function set(path, val){
+  const parts = path.split('.');
+  let o = state;
+  for(let i=0;i<parts.length-1;i++){
+    if(!o[parts[i]]) o[parts[i]] = {};
+    o = o[parts[i]];
+  }
+  o[parts[parts.length-1]] = val;
+  saveState();
+}
+
+/* ============ LIVE PAGE COUNTER ============ */
+function updatePageCounter(){
+  const json = JSON.stringify(state);
+  const charCount = json.replace(/[{}\[\]",:]/g,' ').length;
+  const pages = Math.max(1, Math.round(charCount / 1400));
+  document.getElementById('pageCount').textContent = pages + ' trang';
+}
+
+/* ============ TOAST ĐỘNG VIÊN ============ */
+const SECTION_MSGS = [
+  '🔥 Tốt lắm! Tiến thêm 1 bước rồi.',
+  '💪 Chuẩn đó, đi tiếp thôi!',
+  '✨ Bạn đang xây thứ gì đó thật đấy.',
+  '👏 Giỏi lắm, tiếp tục nào!',
+  '🚀 Gần hơn 1 bước tới bản kế hoạch hoàn chỉnh.',
+  '🎯 Chắc tay lắm, làm tiếp đi!',
+  '📈 Đang lên form rất tốt!',
+];
+const GATE_PASS_MSGS = [
+  '✅ Chính xác! Bạn nắm vững phần này.',
+  '🏆 Đúng rồi đó, qua ải tiếp theo!',
+  '🧠 Kiến thức vững, đi tiếp thôi!',
+];
+const MILESTONE_MSGS = [
+  '🌱 Bạn đang tử tế với tương lai của chính mình. Đừng chỉ làm cho có — đi tiếp nhé.',
+  '🎯 5 phần rồi. Nếu con số nào bạn vừa điền còn là đoán mò, quay lại làm cho chắc trước khi đi tiếp.',
+  '🔑 Bản kế hoạch này sẽ là thứ bạn cầm đi vay vốn thật. Làm nghiêm túc từ bây giờ.',
+  '💛 Bạn đang bỏ công sức thật — tương lai bạn xứng đáng với sự tử tế đó.',
+];
+let toastQueue = [];
+let toastShowing = false;
+function showToast(msg, cls){
+  if(toastQueue.length >= 2) return;
+  toastQueue.push({msg, cls});
+  processToastQueue();
+}
+function processToastQueue(){
+  if(toastShowing || toastQueue.length===0) return;
+  toastShowing = true;
+  const {msg, cls} = toastQueue.shift();
+  const t = document.createElement('div');
+  t.className = 'toast' + (cls?(' '+cls):'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{
+    t.remove();
+    toastShowing = false;
+    processToastQueue();
+  }, 2000);
+}
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+let bigToastShowing = false;
+function maybeShowMilestone(){
+  const n = get('_milestoneCount', 0) + 1;
+  set('_milestoneCount', n);
+  if(n % 5 === 0 && !bigToastShowing){
+    bigToastShowing = true;
+    const bt = document.createElement('div');
+    bt.className = 'big-toast';
+    bt.textContent = pick(MILESTONE_MSGS);
+    document.body.appendChild(bt);
+    setTimeout(()=>{ bt.remove(); bigToastShowing = false; }, 3000);
+  }
+}
+let previousDoneMap = {};
+function checkAutoCompleteRewards(){
+  SECTIONS.filter(s=>!s.gate && s.id!=='review').forEach(s=>{
+    const doneNow = isDone(s.id);
+    if(doneNow && !previousDoneMap[s.id]){
+      showToast(pick(SECTION_MSGS));
+      maybeShowMilestone();
+    }
+    previousDoneMap[s.id] = doneNow;
+  });
+}
+
+/* ============ HÀM TÍNH TOÁN DÙNG CHUNG ============ */
+function computeTongDoanhThuNgay(){
+  const ca = get('p6.ca', []);
+  const giatrihd = Number(get('p6.giatrihd',0));
+  let tong = 0;
+  ca.forEach(c=>{ tong += Number(c.khach||0) * giatrihd; });
+  return tong;
+}
+function computeCongSuatCa(khach){
+  const tongGhe = Number(get('p5.sochongoi',0));
+  if(!tongGhe) return 0;
+  return (Number(khach||0) / tongGhe) * 100;
+}
+function computeKichBan(){
+  const ngayMucTieu = computeTongDoanhThuNgay();
+  const songay = Number(get('p6.songaymở',26));
+  const biquanPct = Number(get('p6.kb_biquan_pct',0));
+  const tbPct = Number(get('p6.kb_tb_pct',0));
+  const xuatsacPct = Number(get('p6.kb_xuatsac_pct',0));
+  const biquanNgay = ngayMucTieu * biquanPct/100;
+  const tbNgay = ngayMucTieu * tbPct/100;
+  const xuatsacNgay = ngayMucTieu * xuatsacPct/100;
+  return {
+    ngayMucTieu, songay,
+    biquanNgay, tbNgay, xuatsacNgay,
+    biquanThang: biquanNgay*songay, tbThang: tbNgay*songay, xuatsacThang: xuatsacNgay*songay
+  };
+}
+function computeOpexFixedPart(){
+  return Number(get('p8.thue',0))+Number(get('p8.nhansu',0))+Number(get('p8.diennuoc',0))+Number(get('p8.marketing_chiphi',0))+Number(get('p8.khac',0));
+}
+function computeTongVonDauTu(){
+  const items = get('p7.items', []);
+  const totalCapex = items.reduce((a,b)=>a+Number(b.chiphi||0),0);
+  const uocCount = items.filter(i=>i.dotincay==='Ước tính').length;
+  const ratio = items.length ? uocCount/items.length : 0;
+  const pct = ratio>0.5?0.20:ratio>0.2?0.15:0.10;
+  const duphongVon = Math.round(totalCapex*pct);
+  const opexTotal = computeOpexFixedPart() + Number(get('p8.nvl',0));
+  const soThangDP = Number(get('p7.sothangduphong',3));
+  const vonluudong = opexTotal * soThangDP;
+  const tongVon = totalCapex + duphongVon + vonluudong;
+  return {totalCapex, ratio, pct, duphongVon, vonluudong, tongVon};
+}
+function computeProfit(){
+  const kb = computeKichBan();
+  const opexTotal = computeOpexFixedPart() + Number(get('p8.nvl',0));
+  return kb.tbThang - opexTotal;
+}
+function computeBreakeven(){
+  const opexFixed = computeOpexFixedPart();
+  const nvlPct = Number(get('p8.nvl_pct',0))/100;
+  const revenue = nvlPct < 1 ? opexFixed / (1-nvlPct) : 0;
+  const opexTotal = opexFixed + Number(get('p8.nvl',0));
+  return {revenue: Math.round(revenue), opexTotal};
+}
+function computeThang11(){
+  const kb = computeKichBan();
+  const nvlPct = Number(get('p8.nvl_pct',0))/100;
+  const fixedOpex = computeOpexFixedPart();
+  const rows = get('p11.thang', [1,2,3,4,5,6].map(n=>({thang:'Tháng '+n, congsuat:''})));
+  let cum = 0;
+  return rows.map(r=>{
+    const congsuat = Number(r.congsuat||0);
+    const thu = kb.ngayMucTieu * kb.songay * congsuat/100;
+    const chi = fixedOpex + thu*nvlPct;
+    const loinhuan = thu - chi;
+    cum += loinhuan;
+    return {thang:r.thang, congsuat, thu, chi, loinhuan, cum};
+  });
+}
+
+/* ============ NAV RENDER ============ */
+function renderNav(){
+  const nav = document.getElementById('navList');
+  nav.innerHTML = '';
+  SECTIONS.forEach((s, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'nav-item' + (idx===currentIndex?' active':'') + (isDone(s.id)?' done':'');
+    div.innerHTML = '<span class="dot"></span><span>'+s.title+'</span>';
+    div.onclick = ()=>{ currentIndex = idx; render(); };
+    nav.appendChild(div);
+  });
+}
+function isDone(id){
+  if(id==='terms') return !!gatesPassedState['terms'];
+  if(id.startsWith('gate')) return !!gatesPassedState[id];
+  const req = REQUIRED[id];
+  if(!req) return false;
+  const data = state[id] || {};
+  if(!req.every(k=> filled(data[k]))) return false;
+  if(id==='p2'){ if((data.nhom||[]).filter(r=>filled(r.ten)).length < 2) return false; }
+  if(id==='p3'){ if((data.doithu||[]).filter(r=>filled(r.ten)).length < 3) return false; }
+  if(id==='p4'){ if(!data.filename || (data.soMon||0) < 5) return false; }
+  if(id==='p11'){ const rows=data.thang||[]; if(rows.length<6 || !rows.every(r=>filled(r.congsuat))) return false; }
+  if(id==='p13'){ const rows=data.kenh||[]; if(!rows.every(r=>filled(r.ngansach))) return false; }
+  if(id==='p15'){ if((data.ruiro||[]).filter(r=>filled(r.ten)).length < 3) return false; }
+  if(id==='p15b'){ if(!data.camket) return false; }
+  if(id==='p16'){ const rows=data.moc||[]; if(rows.length<4 || !rows.every(r=>filled(r.thoigian)&&filled(r.congviec))) return false; }
+  if(id==='p6'){ const ca = data.ca||[]; if(!ca.some(c=>filled(c.khach))) return false; }
+  return true;
+}
+function isSkipped(id){ return gatesPassedState[id]==='skipped'; }
+function skippedGates(){
+  return Object.keys(GATES).filter(g=>isSkipped(g)).map(g=>GATES[g].section);
+}
+function renderProgressPanel(){
+  const panel = document.getElementById('progressPanel');
+  const sectionTotal = SECTIONS.filter(s=>!s.gate && s.id!=='review').length;
+  const sectionDone = SECTIONS.filter(s=>!s.gate && s.id!=='review' && isDone(s.id)).length;
+  const gateTotal = Object.keys(GATES).length + 1; // +1 cho terms
+  const gateDone = Object.keys(GATES).filter(g=>gatesPassedState[g]).length + (gatesPassedState['terms']?1:0);
+  const pct = Math.round(((sectionDone+gateDone)/(sectionTotal+gateTotal))*100);
+  panel.innerHTML = '<div style="display:flex;justify-content:space-between"><span>Hoàn thành</span><span><b style="color:var(--text)">'+pct+'%</b></span></div>'+
+    '<div class="progress-bar-track"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div>'+
+    '<div style="margin-top:6px">Phần: '+sectionDone+'/'+sectionTotal+' · Kiểm tra: '+gateDone+'/'+gateTotal+'</div>';
+}
+
+/* ============ CROSS-CHECK LOGIC ============ */
+function crossChecks(){
+  const warns = [];
+  const sochongoi = Number(get('p5.sochongoi',0));
+  const ca = get('p6.ca', []);
+  const maxKhach = ca.reduce((m,c)=>Math.max(m,Number(c.khach||0)),0);
+  if(sochongoi && maxKhach && maxKhach > sochongoi){
+    warns.push('Có khung giờ ở Phần 6 khai số khách kỳ vọng ('+maxKhach+') lớn hơn tổng số ghế đã khai ở Phần 5 ('+sochongoi+'). Kiểm tra lại.');
+  }
+  const {duphongVon, vonluudong} = computeTongVonDauTu();
+  const rows11 = computeThang11();
+  const minCum = rows11.length ? Math.min(...rows11.map(r=>r.cum)) : 0;
+  const duphongTong = duphongVon; // dự phòng phát sinh, không tính vốn lưu động (đã tách riêng theo tháng)
+  if(rows11.some(r=>filled(r.congsuat)) && Math.abs(Math.min(0,minCum)) > duphongTong + vonluudong){
+    warns.push('Dòng tiền âm sâu nhất trong 6 tháng đầu ('+Math.abs(Math.min(0,minCum)).toLocaleString('vi-VN')+' đ) vượt quá vốn dự phòng ở Phần 7. Cần tăng vốn dự phòng hoặc điều chỉnh lộ trình công suất.');
+  }
+  const opexMkt = Number(get('p8.marketing_chiphi',0));
+  const kenh13 = get('p13.kenh', []);
+  const tongKenh = kenh13.reduce((a,b)=>a+Number(b.ngansach||0),0);
+  if(opexMkt && tongKenh && Math.abs(opexMkt - tongKenh) > opexMkt*0.15){
+    warns.push('Ngân sách marketing ở Phần 8 ('+opexMkt.toLocaleString('vi-VN')+' đ) không khớp với tổng ngân sách các kênh ở Phần 13 ('+tongKenh.toLocaleString('vi-VN')+' đ).');
+  }
+  const kb = computeKichBan();
+  const be = computeBreakeven();
+  if(kb.biquanThang && be.revenue && kb.biquanThang < be.revenue){
+    warns.push('Kịch bản doanh thu bi quan ('+Math.round(kb.biquanThang).toLocaleString('vi-VN')+' đ/tháng) vẫn THẤP HƠN điểm hoà vốn ('+be.revenue.toLocaleString('vi-VN')+' đ/tháng). Cần giải trình phương án xử lý ở Phần 9.');
+  }
+  const vonKhaDung = Number(get('p7.von_khonglai',0)) + Number(get('p7.von_colai',0));
+  const {tongVon} = computeTongVonDauTu();
+  if(tongVon>0 && vonKhaDung>0 && vonKhaDung < tongVon){
+    warns.push('Vốn khả dụng (không lãi + có lãi: '+vonKhaDung.toLocaleString('vi-VN')+' đ) chưa đủ so với tổng vốn đầu tư cần ở Phần 7 ('+tongVon.toLocaleString('vi-VN')+' đ).');
+  }
+  return warns;
+}
+
+/* ============ RENDER MAIN ============ */
+function render(){
+  renderNav();
+  renderProgressPanel();
+  const s = SECTIONS[currentIndex];
+  const main = document.getElementById('mainArea');
+  main.innerHTML = '';
+  if(s.id==='terms'){ renderTerms(main); }
+  else if(s.gate){ renderGate(s.id, main); }
+  else { renderSection(s.id, main); }
+  updatePageCounter();
+}
+
+function renderTerms(main){
+  const card = document.createElement('div');
+  card.className = 'card gate';
+  card.innerHTML = '<h2>Cam kết trách nhiệm</h2><p class="subtitle">Tích đủ tất cả các điều khoản dưới đây mới được vào bài chính.</p>';
+  const checks = [];
+  TERMS_CLAUSES.forEach((c,i)=>{
+    const lab = document.createElement('label');
+    lab.className = 'terms-item';
+    lab.innerHTML = '<input type="checkbox" data-i="'+i+'"> <span>'+c+'</span>';
+    card.appendChild(lab);
+    checks.push(lab.querySelector('input'));
+  });
+  const err = document.createElement('div');
+  err.className = 'gate-error hidden';
+  card.appendChild(err);
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.style.marginTop = '14px';
+  btn.textContent = 'Tôi đồng ý — Vào bài chính';
+  btn.onclick = ()=>{
+    const allChecked = checks.every(c=>c.checked);
+    if(allChecked){
+      gatesPassedState['terms'] = true;
+      saveState();
+      currentIndex++; render();
+    } else {
+      err.classList.remove('hidden');
+      err.textContent = 'Cần tích đủ tất cả điều khoản mới được tiếp tục.';
+    }
+  };
+  card.appendChild(btn);
+  main.appendChild(card);
+}
+
+function renderGate(gateId, main){
+  const g = GATES[gateId];
+  const card = document.createElement('div');
+  card.className = 'card gate';
+  card.innerHTML = '<h2>Kiểm tra kiến thức <span class="todo-badge">'+(g.q.includes('PLACEHOLDER')?'CẦN ANDY DUYỆT NỘI DUNG':'')+'</span></h2>'+
+    '<p class="subtitle">'+g.section+' — chọn đúng và đủ, sai/thừa/thiếu sẽ không qua được.</p>'+
+    '<p style="font-weight:500">'+g.q+'</p>';
+  const optsWrap = document.createElement('div');
+  g.options.forEach((o,i)=>{
+    const lab = document.createElement('label');
+    lab.className = 'gate-opt';
+    lab.innerHTML = '<input type="checkbox" data-i="'+i+'"> '+o.t;
+    optsWrap.appendChild(lab);
+  });
+  card.appendChild(optsWrap);
+  const err = document.createElement('div');
+  err.className = 'gate-error hidden';
+  card.appendChild(err);
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-primary';
+  btn.style.marginTop='14px';
+  btn.textContent = 'Kiểm tra & tiếp tục';
+  btn.onclick = ()=>{
+    const checked = [...optsWrap.querySelectorAll('input:checked')].map(x=>Number(x.dataset.i));
+    const correctSet = g.options.map((o,i)=>o.correct?i:null).filter(x=>x!==null);
+    const isExact = checked.length===correctSet.length && checked.every(c=>correctSet.includes(c));
+    if(isExact){
+      gatesPassedState[gateId] = true;
+      saveState();
+      showToast(pick(GATE_PASS_MSGS), 'gate');
+      currentIndex++; render();
+    } else {
+      err.classList.remove('hidden');
+      err.textContent = 'Chưa đúng — xem lại bài giảng liên quan tới ' + g.section + ' rồi thử lại.';
+    }
+  };
+  card.appendChild(btn);
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'btn';
+  skipBtn.style.marginTop='8px';
+  skipBtn.style.marginLeft='8px';
+  skipBtn.textContent = 'Bỏ qua — Em sẽ chứng minh ạ';
+  skipBtn.onclick = ()=>{
+    gatesPassedState[gateId] = 'skipped';
+    saveState();
+    currentIndex++; render();
+  };
+  card.appendChild(skipBtn);
+  main.appendChild(card);
+}
+
+function footerNav(main, sectionId){
+  const wrap = document.createElement('div');
+  wrap.className = 'footer-nav';
+  const prev = document.createElement('button');
+  prev.className='btn'; prev.textContent='← Phần trước';
+  prev.onclick = ()=>{ if(currentIndex>0){currentIndex--; render();} };
+  const next = document.createElement('button');
+  next.className='btn btn-primary'; next.textContent='Tiếp tục →';
+  next.onclick = ()=>{
+    if(currentIndex<SECTIONS.length-1){currentIndex++; render();}
+  };
+  wrap.appendChild(prev); wrap.appendChild(next);
+  main.appendChild(wrap);
+}
+
+function field(container, opts){
+  const lab = document.createElement('label');
+  lab.className = opts.reason ? 'reason' : '';
+  lab.style.display = 'flex';
+  lab.style.justifyContent = 'space-between';
+  lab.style.alignItems = 'center';
+  const labText = document.createElement('span');
+  labText.textContent = opts.label;
+  const check = document.createElement('span');
+  check.className = 'field-check';
+  check.textContent = '✓';
+  lab.appendChild(labText);
+  lab.appendChild(check);
+  container.appendChild(lab);
+
+  if(opts.type==='money'){
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.inputMode = 'numeric';
+    inp.placeholder = 'VD: 50.000.000';
+    const rawInit = String(get(opts.path,'')).replace(/\D/g,'');
+    inp.value = formatVNDDisplay(rawInit);
+    check.style.opacity = rawInit ? 1 : 0;
+    const wordsCaption = document.createElement('div');
+    wordsCaption.className = 'small-note';
+    wordsCaption.style.marginTop = '2px';
+    wordsCaption.textContent = rawInit ? numberToVietnameseWords(rawInit) : '';
+    inp.oninput = ()=>{
+      const digits = inp.value.replace(/\D/g,'');
+      inp.value = formatVNDDisplay(digits);
+      set(opts.path, digits);
+      check.style.opacity = digits ? 1 : 0;
+      wordsCaption.textContent = digits ? numberToVietnameseWords(digits) : '';
+      if(opts.onChange) opts.onChange();
+    };
+    container.appendChild(inp);
+    container.appendChild(wordsCaption);
+    return inp;
+  }
+
+  let inp;
+  if(opts.type==='textarea'){ inp = document.createElement('textarea'); }
+  else { inp = document.createElement('input'); inp.type = opts.type||'text'; }
+  inp.value = get(opts.path,'');
+  check.style.opacity = String(inp.value).trim()!=='' ? 1 : 0;
+  inp.oninput = ()=>{
+    set(opts.path, inp.value);
+    check.style.opacity = String(inp.value).trim()!=='' ? 1 : 0;
+    if(opts.onChange) opts.onChange();
+  };
+  container.appendChild(inp);
+  return inp;
+}
+
+function dynTable(container, opts){
+  const wrap = document.createElement('div');
+  const tbl = document.createElement('table');
+  const thead = document.createElement('tr');
+  opts.cols.forEach(c=>{ const th=document.createElement('th'); th.textContent=c.label; thead.appendChild(th); });
+  const thRemove = document.createElement('th'); thead.appendChild(thRemove);
+  tbl.appendChild(thead);
+  let rows = get(opts.path, opts.initRows || []);
+  function renderRows(){
+    [...tbl.querySelectorAll('tr')].slice(1).forEach(r=>r.remove());
+    rows.forEach((row,ri)=>{
+      const tr = document.createElement('tr');
+      const autoCells = {};
+      opts.cols.forEach(c=>{
+        const td = document.createElement('td');
+        if(c.auto){
+          const span = document.createElement('span');
+          span.className = 'auto-cell';
+          span.textContent = c.autoFormat ? c.autoFormat(c.auto(row)) : String(Math.round(c.auto(row)||0));
+          td.appendChild(span);
+          autoCells[c.key] = span;
+        } else if(c.type==='textarea'){
+          const ta = document.createElement('textarea');
+          ta.style.minHeight='48px'; ta.rows=2;
+          ta.value = row[c.key]||'';
+          ta.oninput = ()=>{ rows[ri][c.key]=ta.value; set(opts.path, rows); };
+          td.appendChild(ta);
+        } else {
+          const inp = document.createElement('input');
+          inp.type = c.type||'text';
+          inp.value = row[c.key]||'';
+          inp.oninput = ()=>{
+            rows[ri][c.key]=inp.value; set(opts.path, rows);
+            opts.cols.forEach(cc=>{ if(cc.auto && autoCells[cc.key]) autoCells[cc.key].textContent = cc.autoFormat ? cc.autoFormat(cc.auto(rows[ri])) : String(Math.round(cc.auto(rows[ri])||0)); });
+          };
+          td.appendChild(inp);
+        }
+        tr.appendChild(td);
+      });
+      const tdr = document.createElement('td');
+      const rm = document.createElement('button');
+      rm.className='remove-row'; rm.textContent='Xoá';
+      rm.onclick = ()=>{ rows.splice(ri,1); set(opts.path, rows); renderRows(); };
+      tdr.appendChild(rm);
+      tr.appendChild(tdr);
+      tbl.appendChild(tr);
+    });
+  }
+  renderRows();
+  wrap.appendChild(tbl);
+  if(!opts.noAdd){
+    const addBtn = document.createElement('button');
+    addBtn.className='btn btn-add'; addBtn.textContent = '+ ' + (opts.addLabel||'Thêm dòng');
+    addBtn.onclick = ()=>{
+      const nr = {}; opts.cols.forEach(c=>nr[c.key]='');
+      rows.push(nr); set(opts.path, rows); renderRows();
+    };
+    wrap.appendChild(addBtn);
+  }
+  container.appendChild(wrap);
+}
+
+/* ============ RENDER TỪNG PHẦN ============ */
+function renderSection(id, main){
+  const card = document.createElement('div');
+  card.className = 'card';
+  main.appendChild(card);
+
+  if(id==='p0'){
+    card.innerHTML = '<div class="serious-banner">"Hãy tử tế với tương lai của chính bạn — đừng chỉ làm cho có. Mỗi con số bạn điền hôm nay là điều bạn sẽ phải sống cùng khi quán mở cửa thật."</div>'+
+      '<h1>Phần 0 — Thông tin nhanh</h1><p class="subtitle">Chỉ mất 1 phút — để chúng tôi liên hệ và hỗ trợ đúng người trong suốt khoá học.</p>';
+    field(card,{label:'Họ và tên',path:'p0.hoten'});
+    field(card,{label:'Số điện thoại',path:'p0.sdt'});
+    field(card,{label:'Email',path:'p0.email'});
+    field(card,{label:'Lý do tham gia khoá học',path:'p0.lydo',type:'textarea'});
+    field(card,{label:'Mục tiêu cụ thể sau khi hoàn thành khoá học',path:'p0.muctieu',type:'textarea'});
+    field(card,{label:'Quy mô vốn dự kiến đầu tư cho dự án này (ước lượng nhanh, chưa cần chính xác)',path:'p0.quymovon',type:'money'});
+  }
+
+  else if(id==='p0c'){
+    card.innerHTML = '<h1>Mục tiêu lợi nhuận</h1><p class="subtitle">1 câu hỏi thôi — đặt đích trước khi tính từng con số.</p>';
+    field(card,{label:'Bạn muốn kiếm được bao nhiêu tiền lợi nhuận/tháng từ dự án này?',path:'p0c.loinhuan_mucTieu',type:'money'});
+    card.innerHTML += '<p class="small-note">Cuối hành trình, khi đã có số liệu thật, bạn sẽ được mời vẽ lại vision board cuộc sống mơ ước — lúc đó con số không còn là tưởng tượng nữa.</p>';
+  }
+
+  else if(id==='p1'){
+    card.innerHTML = '<h1>Phần 1 — Mô hình kinh doanh</h1>';
+    field(card,{label:'Tên thương hiệu / concept',path:'p1.ten'});
+    field(card,{label:'Slogan',path:'p1.slogan'});
+    const lg = document.createElement('label'); lg.className='reason'; lg.textContent='Slogan thể hiện giá trị mới nào bạn mang đến cho khách hàng mục tiêu?';
+    card.appendChild(lg);
+    const tg = document.createElement('textarea'); tg.value=get('p1.giatri_moi',''); tg.oninput=()=>set('p1.giatri_moi',tg.value); card.appendChild(tg);
+    field(card,{label:'Loại hình (nhà hàng full-service / ăn nhanh / bếp trung tâm delivery / kiosk...)',path:'p1.loaihinh'});
+    field(card,{label:'Phân khúc giá (bình dân / tầm trung / cao cấp)',path:'p1.phankhuc'});
+    field(card,{label:'Bình quân chi tiêu/khách/lần (VNĐ)',path:'p1.binhquan',type:'money'});
+    field(card,{label:'Mô tả menu chi tiết (liệt kê món, không chỉ nhóm món chung chung)',path:'p1.menu',type:'textarea'});
+    field(card,{label:'Mô tả concept (3-4 câu)',path:'p1.motaconcept',type:'textarea'});
+    field(card,{label:'Điểm khác biệt cạnh tranh cốt lõi (USP) — nếu không có quán này, khách đang thiếu gì?',path:'p1.usp',type:'textarea'});
+    field(card,{label:'Vì sao chọn mô hình này, tại sao đúng thời điểm với thị trường Hà Nội?',path:'p1.giaithich',type:'textarea',reason:true});
+  }
+
+  else if(id==='p2'){
+    card.innerHTML = '<h1>Phần 2 — Thị trường & khách hàng mục tiêu</h1><p class="subtitle">Phần quan trọng nhất về tư duy — không có đáp án mẫu để chép.</p>';
+    card.innerHTML += '<h2 style="margin-top:18px">2.1 Mô tả thành phố / khu vực kinh doanh</h2>';
+    field(card,{label:'Đặc thù kinh tế khu vực (dân cư, thu nhập bình quân, ngành nghề chủ đạo)',path:'p2.dacthu',type:'textarea'});
+    field(card,{label:'Quy mô thị trường F&B tại khu vực (ước tính số hàng quán cùng phân khúc)',path:'p2.quymothitruong',type:'textarea'});
+    field(card,{label:'Hoạt động kinh tế/doanh nghiệp/chính trị ảnh hưởng lưu lượng khách',path:'p2.hoatdong',type:'textarea'});
+    field(card,{label:'Những đặc điểm này ảnh hưởng thế nào tới mô hình của bạn cụ thể?',path:'p2.giaithich_tp',type:'textarea',reason:true});
+
+    card.innerHTML += '<h2 style="margin-top:22px">2.2 Phân khúc khách hàng — theo nhóm, có tỷ trọng</h2><p class="subtitle">Tối thiểu 2-3 nhóm.</p>';
+    dynTable(card,{path:'p2.nhom', cols:[
+      {key:'ten',label:'Nhóm'},{key:'dacdiem',label:'Đặc điểm'},{key:'tytrong',label:'Tỷ trọng %',type:'number'},{key:'dip',label:'Dịp sử dụng'}
+    ], initRows:[{},{}], addLabel:'Thêm nhóm khách hàng'});
+    field(card,{label:'Tại sao bạn nhận diện được các nhóm khách hàng này? (mô tả cách quan sát/khảo sát)',path:'p2.giaithich_nhandien',type:'textarea',reason:true});
+    field(card,{label:'Tại sao bạn nghĩ khu vực của bạn tồn tại đúng những nhóm khách hàng này?',path:'p2.giaithich_tontai',type:'textarea',reason:true});
+    field(card,{label:'Quy mô khách hàng tiềm năng trong bán kính phục vụ (bao nhiêu khách MỖI NGÀY)',path:'p2.quymo',type:'number'});
+    field(card,{label:'Tính từ đâu ra con số này?',path:'p2.giaithich_quymo',type:'textarea',reason:true});
+    field(card,{label:'Bằng chứng (mô tả ảnh khảo sát đã chụp, điểm cộng)',path:'p2.bangchung'});
+
+    card.innerHTML += '<h2 style="margin-top:22px">2.3 Xu hướng thị trường</h2>';
+    field(card,{label:'Xu hướng tiêu dùng F&B liên quan đến concept',path:'p2.xuhuong',type:'textarea'});
+    field(card,{label:'Kênh khách hàng tiếp cận (tại chỗ / app / mạng xã hội)',path:'p2.kenh'});
+  }
+
+  else if(id==='p3'){
+    card.innerHTML = '<h1>Phần 3 — Phân tích đối thủ cạnh tranh</h1><p class="subtitle">Tối thiểu 3 đối thủ, mô tả sâu — không liệt kê hời hợt. Doanh thu ước tính tự động tính từ Giá TB × Khách/ngày × 30.</p>';
+    dynTable(card,{path:'p3.doithu', cols:[
+      {key:'ten',label:'Tên đối thủ'},{key:'quymo',label:'Quy mô (số ghế)'},{key:'giaTB',label:'Giá TB/khách',type:'number'},
+      {key:'khachngay',label:'Ước tính khách/ngày',type:'number'},
+      {key:'doanhthu',label:'Ước tính DT/tháng',auto:(row)=>Number(row.giaTB||0)*Number(row.khachngay||0)*30,autoFormat:(v)=>Math.round(v).toLocaleString('vi-VN')+' đ'},
+      {key:'thanhcong',label:'Lý do thành công (mỗi dòng 1 ý)',type:'textarea'},{key:'yeukem',label:'Điểm yếu (mỗi dòng 1 ý)',type:'textarea'}
+    ], initRows:[{},{},{}], addLabel:'Thêm đối thủ'});
+    field(card,{label:'Vì sao khách sẽ chọn bạn thay vì đối thủ mạnh nhất trong danh sách?',path:'p3.giaithich',type:'textarea',reason:true});
+    field(card,{label:'Bằng chứng (ngày khảo sát, ảnh menu...)',path:'p3.bangchung'});
+  }
+
+  else if(id==='p4'){
+    card.innerHTML = '<h1>Phần 4 — Sản phẩm & chiến lược giá</h1>';
+    card.innerHTML += '<h2 style="margin-top:10px">4.1 Food cost — nộp file Excel</h2><p class="subtitle">Tải template, điền đủ tối thiểu 5 món, rồi upload lại. Template được tạo sẵn trong app — không cần bạn tự chuẩn bị file.</p>';
+    const dl = document.createElement('button');
+    dl.className='btn'; dl.textContent='⬇ Tải template Excel';
+    dl.onclick = downloadFoodCostTemplate;
+    card.appendChild(dl);
+    const upLabel = document.createElement('label'); upLabel.textContent='Upload file Excel đã điền (.xlsx)'; card.appendChild(upLabel);
+    const up = document.createElement('input'); up.type='file'; up.accept='.xlsx';
+    up.onchange = (e)=> handleFoodCostUpload(e, card);
+    card.appendChild(up);
+    const status = document.createElement('div'); status.id='foodcost-status';
+    if(get('p4.filename')){
+      status.className='ok-msg';
+      status.textContent = 'Đã nộp: '+get('p4.filename')+' — Food cost % trung bình: '+get('p4.avgFoodCost','?')+'%';
+    }
+    card.appendChild(status);
+    field(card,{label:'Định lượng nguyên liệu/suất lấy từ đâu? Đơn giá có phải giá thực tế đã hỏi nhà cung cấp không?',path:'p4.giaithich',type:'textarea',reason:true});
+    card.innerHTML += '<h2 style="margin-top:18px">4.2 Chiến lược giá</h2>';
+    field(card,{label:'Giá được định theo (a) chi phí+margin, (b) so sánh đối thủ, hay (c) khả năng chi trả khách? Vì sao?',path:'p4.giaithich_gia',type:'textarea',reason:true});
+  }
+
+  else if(id==='p5'){
+    card.innerHTML = '<h1>Phần 5 — Địa điểm & mặt bằng</h1>';
+    field(card,{label:'Địa chỉ / khu vực dự kiến',path:'p5.diachi'});
+    field(card,{label:'Diện tích (m²)',path:'p5.dientich',type:'number'});
+    field(card,{label:'Giá thuê/tháng (VNĐ)',path:'p5.giathue',type:'money'});
+    field(card,{label:'Số chỗ ngồi (tổng ghế)',path:'p5.sochongoi',type:'number'});
+    field(card,{label:'Giá thuê căn cứ vào đâu? Diện tích/số chỗ có khớp công suất Phần 6 không?',path:'p5.giaithich',type:'textarea',reason:true});
+    field(card,{label:'Bằng chứng (tên 2-3 mặt bằng đã khảo sát)',path:'p5.bangchung'});
+  }
+
+  else if(id==='p6'){
+    renderPhan6(card);
+  }
+
+  else if(id==='p7'){
+    renderPhan7(card);
+  }
+
+  else if(id==='p8'){
+    renderPhan8(card);
+  }
+
+  else if(id==='p9'){
+    renderPhan9(card);
+  }
+
+  else if(id==='p11'){
+    renderPhan11(card);
+  }
+
+  else if(id==='p12'){
+    card.innerHTML = '<h1>Phần 11 — Kế hoạch vận hành</h1>';
+    field(card,{label:'Quy trình phục vụ (từ lúc khách vào tới lúc rời)',path:'p12.quytrinh',type:'textarea'});
+    field(card,{label:'Ca làm việc, số nhân sự/ca',path:'p12.ca',type:'textarea'});
+    field(card,{label:'Quy trình kiểm soát chất lượng/nguyên liệu',path:'p12.qc',type:'textarea'});
+    field(card,{label:'Tổng số nhân sự cần thiết',path:'p12.nhansu',type:'number'});
+    field(card,{label:'Tính từ công suất phục vụ Phần 6 — bao nhiêu khách/nhân viên là hợp lý?',path:'p12.giaithich',type:'textarea',reason:true});
+  }
+
+  else if(id==='p13'){
+    card.innerHTML = '<h1>Phần 12 — Marketing & kênh bán</h1>';
+    dynTable(card,{path:'p13.kenh', cols:[
+      {key:'ten',label:'Kênh'},{key:'ngansach',label:'Ngân sách/tháng',type:'number'},{key:'muctieu',label:'Mục tiêu (khách/đơn)'}
+    ], initRows:[{ten:'Tại chỗ/offline'},{ten:'Delivery app'},{ten:'Mạng xã hội'}], addLabel:'Thêm kênh'});
+    field(card,{label:'Có khớp OPEX Phần 8 không? Kênh nào ưu tiên 3 tháng đầu, vì sao?',path:'p13.giaithich',type:'textarea',reason:true});
+    renderWarnings(card);
+  }
+
+  else if(id==='p14'){
+    card.innerHTML = '<h1>Phần 13 — Pháp lý & giấy phép</h1>';
+    field(card,{label:'Loại hình đăng ký kinh doanh',path:'p14.loaihinh'});
+    field(card,{label:'Giấy phép ATTP, PCCC cần có',path:'p14.giayphep',type:'textarea'});
+    field(card,{label:'Hợp đồng thuê — thời hạn, điều khoản chấm dứt sớm',path:'p14.hopdong',type:'textarea'});
+    field(card,{label:'Thời hạn hợp đồng có đủ dài để hoàn vốn theo Phần 9 không?',path:'p14.giaithich',type:'textarea',reason:true});
+  }
+
+  else if(id==='p15'){
+    card.innerHTML = '<h1>Phần 14 — Rủi ro & kế hoạch dự phòng</h1><p class="subtitle">Tối thiểu 3 rủi ro, phải cụ thể với mô hình này.</p>';
+    dynTable(card,{path:'p15.ruiro', cols:[
+      {key:'ten',label:'Rủi ro'},{key:'xacsuat',label:'Xác suất'},{key:'anhhuong',label:'Mức ảnh hưởng'},{key:'phuongan',label:'Phương án ứng phó'}
+    ], initRows:[{},{},{}], addLabel:'Thêm rủi ro'});
+    field(card,{label:'Rủi ro nêu ra có cụ thể với mô hình này không (không chung chung)?',path:'p15.giaithich',type:'textarea',reason:true});
+  }
+
+  else if(id==='p0b'){
+    card.innerHTML = '<h1>Hồ sơ khởi nghiệp của bạn</h1>'+
+      '<div class="serious-banner">Phần này không phải thủ tục hành chính. Bạn đã đi gần hết chặng đường lập kế hoạch — giờ là lúc lớp phản biện hiểu bạn xuất phát từ đâu, để hỏi đúng chỗ bạn còn yếu và bỏ qua chỗ bạn đã vững. Người có kinh nghiệm sẽ bị vặn khó hơn; người mới sẽ được gợi ý đúng chỗ cần học thêm. Trả lời thật, đừng viết cho đẹp.</div>';
+    field(card,{label:'Bạn học gì (ngành học / trường)?',path:'p0b.hocgi'});
+    field(card,{label:'Bạn từng làm ở đâu, bao lâu? (liệt kê quá trình làm việc)',path:'p0b.tunglam',type:'textarea'});
+    field(card,{label:'Sở trường của bạn là gì?',path:'p0b.sotruong',type:'textarea'});
+    field(card,{label:'Sở đoản của bạn là gì?',path:'p0b.sodoan',type:'textarea'});
+    field(card,{label:'Tại sao bạn chọn con đường/công việc này?',path:'p0b.tsc_congviec',type:'textarea'});
+    field(card,{label:'Bạn có trải nghiệm gì liên quan đến kinh doanh?',path:'p0b.kinhnghiem',type:'textarea'});
+    field(card,{label:'Bạn từng đạt được thành tựu gì trong quá trình làm việc trước đó khiến bạn cảm thấy vui?',path:'p0b.thanhtuu',type:'textarea'});
+  }
+
+  else if(id==='p15b'){
+    card.innerHTML = '<h1>Phần 15 — Kế hoạch thể chất và năng lượng — tinh thần khởi nghiệp</h1><p class="subtitle">Không chấm điểm đúng/sai, nhưng bắt buộc hoàn thành trung thực.</p>';
+    field(card,{label:'Khi làm bài kế hoạch này, bạn phát hiện điều gì mình chưa biết? Hành động cụ thể để lấp đầy khoảng thiếu đó?',path:'p15b.chuabiet',type:'textarea'});
+    field(card,{label:'Bạn sẽ chuẩn bị nền tảng sức khoẻ nào để có "thừa" khả năng chiến đấu ngay cả khi gặp khó khăn trong quá trình khởi nghiệp?',path:'p15b.nentang',type:'textarea'});
+    card.innerHTML += '<h2 style="margin-top:18px">Cam kết rèn luyện thể chất</h2>';
+    card.innerHTML += '<div class="stat-grid"><div class="stat"><div class="l">Khởi động</div><div class="v">≥ 5 phút/ngày</div></div>'+
+      '<div class="stat"><div class="l">Chống đẩy</div><div class="v">≥ 60 cái/ngày</div></div>'+
+      '<div class="stat"><div class="l">Squat</div><div class="v">≥ 60 cái/ngày</div></div>'+
+      '<div class="stat"><div class="l">Tổng thời gian tập</div><div class="v">≥ 30 phút/ngày</div></div></div>';
+    card.innerHTML += '<p class="small-note">Nguyên tắc: công việc càng nhiều, ngưỡng luyện tập càng phải tăng, không giảm. <span class="todo-badge">Bài giảng chi tiết — chờ Andy bổ sung</span></p>';
+    const chk = document.createElement('label'); chk.className='gate-opt';
+    chk.innerHTML = '<input type="checkbox" id="camket-tapluyen"> Tôi cam kết vận động tối thiểu 30 phút mỗi ngày';
+    card.appendChild(chk);
+    const cb = chk.querySelector('input'); cb.checked = get('p15b.camket',false);
+    cb.onchange = ()=> set('p15b.camket', cb.checked);
+    card.innerHTML += '<h2 style="margin-top:18px">Văn hoá biết ơn</h2>';
+    field(card,{label:'Viết tối thiểu 3 người bạn muốn ghi nhận ngay lúc này, và vì sao',path:'p15b.bietontên',type:'textarea'});
+  }
+
+  else if(id==='p16'){
+    card.innerHTML = '<h1>Phần 16 — Lộ trình triển khai</h1>';
+    dynTable(card,{path:'p16.moc', cols:[
+      {key:'ten',label:'Mốc'},{key:'thoigian',label:'Thời gian'},{key:'congviec',label:'Công việc'}
+    ], initRows:[{ten:'Ký hợp đồng mặt bằng'},{ten:'Hoàn thiện thiết kế/thi công'},{ten:'Tuyển dụng, đào tạo'},{ten:'Khai trương'}], addLabel:'Thêm mốc'});
+  }
+
+  else if(id==='review'){
+    renderReview(card);
+  }
+
+  if(id!=='review'){ footerNav(main, id); }
+}
+
+/* ============ PHẦN 6 — DỰ BÁO DOANH THU (render riêng, có recompute reactive) ============ */
+function renderPhan6(card){
+  card.innerHTML = '<h1>Phần 6 — Dự báo doanh thu</h1>';
+  card.innerHTML += '<h2 style="margin-top:10px">6.1 Công suất mục tiêu khi thành công — quán chạy ổn định</h2><p class="subtitle">Tính doanh thu mục tiêu lý tưởng theo từng khung giờ trong ngày.</p>';
+
+  const tongGheStat = document.createElement('div'); tongGheStat.className='stat'; tongGheStat.style.marginBottom='10px';
+  tongGheStat.innerHTML = '<div class="l">Tổng số ghế (lấy từ Phần 5)</div><div class="v">'+Number(get('p5.sochongoi',0))+' ghế</div>';
+  card.appendChild(tongGheStat);
+
+  field(card,{label:'Giá trị hoá đơn trung bình/khách (VNĐ)',path:'p6.giatrihd',type:'money',onChange:recomputeP6});
+
+  let ca = get('p6.ca', null);
+  if(!ca){
+    ca = [
+      {ten:'Sáng', gioBD:'', gioKT:'', khach:''},
+      {ten:'Giữa sáng', gioBD:'', gioKT:'', khach:''},
+      {ten:'Trưa', gioBD:'', gioKT:'', khach:''},
+      {ten:'Chiều', gioBD:'', gioKT:'', khach:''},
+      {ten:'Tối', gioBD:'', gioKT:'', khach:''},
+    ];
+    set('p6.ca', ca);
+  }
+
+  const tbl = document.createElement('table');
+  tbl.innerHTML = '<tr><th>Khung giờ (bữa)</th><th>Giờ bắt đầu</th><th>Giờ kết thúc</th><th>Số khách kỳ vọng</th><th>Công suất %</th><th>Doanh thu ca</th></tr>';
+  const congSuatCells = [], doanhThuCells = [];
+  ca.forEach((c,i)=>{
+    const tr = document.createElement('tr');
+    const tdTen = document.createElement('td'); tdTen.textContent = c.ten; tdTen.style.fontWeight='600';
+    const tdBD = document.createElement('td'); const inpBD = document.createElement('input'); inpBD.value=c.gioBD; inpBD.placeholder='VD: 07:00';
+    inpBD.oninput = ()=>{ ca[i].gioBD = inpBD.value; set('p6.ca', ca); };
+    tdBD.appendChild(inpBD);
+    const tdKT = document.createElement('td'); const inpKT = document.createElement('input'); inpKT.value=c.gioKT; inpKT.placeholder='VD: 09:30';
+    inpKT.oninput = ()=>{ ca[i].gioKT = inpKT.value; set('p6.ca', ca); };
+    tdKT.appendChild(inpKT);
+    const tdKhach = document.createElement('td'); const inpKhach = document.createElement('input'); inpKhach.type='number'; inpKhach.value=c.khach;
+    inpKhach.oninput = ()=>{ ca[i].khach = inpKhach.value; set('p6.ca', ca); recomputeP6(); };
+    tdKhach.appendChild(inpKhach);
+    const tdCS = document.createElement('td'); const spanCS = document.createElement('span'); spanCS.className='auto-cell'; tdCS.appendChild(spanCS);
+    const tdDT = document.createElement('td'); const spanDT = document.createElement('span'); spanDT.className='auto-cell'; tdDT.appendChild(spanDT);
+    congSuatCells.push(spanCS); doanhThuCells.push(spanDT);
+    tr.appendChild(tdTen); tr.appendChild(tdBD); tr.appendChild(tdKT); tr.appendChild(tdKhach); tr.appendChild(tdCS); tr.appendChild(tdDT);
+    tbl.appendChild(tr);
+  });
+  card.appendChild(tbl);
+
+  const tongDiv = document.createElement('div'); tongDiv.className='stat'; tongDiv.style.marginTop='12px';
+  card.appendChild(tongDiv);
+  const tongWordsDiv = document.createElement('p'); tongWordsDiv.className='small-note';
+  card.appendChild(tongWordsDiv);
+
+  function recomputeP6(){
+    const giatrihd = Number(get('p6.giatrihd',0));
+    const tongGhe = Number(get('p5.sochongoi',0));
+    let tong = 0;
+    ca.forEach((c,i)=>{
+      const khach = Number(c.khach||0);
+      const cs = tongGhe ? (khach/tongGhe*100) : 0;
+      const dt = khach*giatrihd;
+      tong += dt;
+      congSuatCells[i].textContent = cs.toFixed(0)+'%';
+      doanhThuCells[i].textContent = Math.round(dt).toLocaleString('vi-VN')+' đ';
+    });
+    tongDiv.innerHTML = '<div class="l">Tổng doanh thu/ngày mục tiêu</div><div class="v">'+Math.round(tong).toLocaleString('vi-VN')+' đ</div>';
+    tongWordsDiv.textContent = tong>0 ? 'Bằng chữ: '+numberToVietnameseWords(tong) : '';
+    recomputeKichBan();
+  }
+  recomputeP6();
+
+  field(card,{label:'Số khách kỳ vọng mỗi khung giờ dựa trên căn cứ gì?',path:'p6.giaithich_congsuat',type:'textarea',reason:true});
+  field(card,{label:'Số ngày mở cửa/tháng',path:'p6.songaymở',type:'number',onChange:recomputeP6});
+
+  card.innerHTML += '<h2 style="margin-top:22px">6.2 Ba kịch bản (tính theo ngày, quy đổi ra tháng)</h2><p class="subtitle">Chỉ cần điền % so với doanh thu mục tiêu lý tưởng ở trên — tiền tự nhảy.</p>';
+
+  const kbWrap = document.createElement('div');
+  card.appendChild(kbWrap);
+
+  function kbRow(label, pctPath){
+    const rowDiv = document.createElement('div');
+    field(rowDiv, {label: label+' — % so với mục tiêu lý tưởng', path: pctPath, type:'number', onChange: recomputeKichBan});
+    const statD = document.createElement('div'); statD.className='stat-grid'; statD.style.marginTop='6px';
+    rowDiv.appendChild(statD);
+    kbWrap.appendChild(rowDiv);
+    return statD;
+  }
+  const statBiquan = kbRow('Kịch bản bi quan', 'p6.kb_biquan_pct');
+  const statTB = kbRow('Kịch bản trung bình', 'p6.kb_tb_pct');
+  const statXuatsac = kbRow('Kịch bản xuất sắc', 'p6.kb_xuatsac_pct');
+
+  function recomputeKichBan(){
+    const kb = computeKichBan();
+    statBiquan.innerHTML = '<div class="stat"><div class="l">Doanh thu/ngày</div><div class="v">'+Math.round(kb.biquanNgay).toLocaleString('vi-VN')+' đ</div></div><div class="stat"><div class="l">Doanh thu/tháng</div><div class="v">'+Math.round(kb.biquanThang).toLocaleString('vi-VN')+' đ</div></div>';
+    statTB.innerHTML = '<div class="stat"><div class="l">Doanh thu/ngày</div><div class="v">'+Math.round(kb.tbNgay).toLocaleString('vi-VN')+' đ</div></div><div class="stat"><div class="l">Doanh thu/tháng</div><div class="v">'+Math.round(kb.tbThang).toLocaleString('vi-VN')+' đ</div></div>';
+    statXuatsac.innerHTML = '<div class="stat"><div class="l">Doanh thu/ngày</div><div class="v">'+Math.round(kb.xuatsacNgay).toLocaleString('vi-VN')+' đ</div></div><div class="stat"><div class="l">Doanh thu/tháng</div><div class="v">'+Math.round(kb.xuatsacThang).toLocaleString('vi-VN')+' đ</div></div>';
+    set('p6.kb_biquan_doanhthu', Math.round(kb.biquanThang));
+    set('p6.kb_tb_doanhthu', Math.round(kb.tbThang));
+    set('p6.kb_xuatsac_doanhthu', Math.round(kb.xuatsacThang));
+  }
+  recomputeKichBan();
+
+  card.innerHTML += '<h2 style="margin-top:22px">Thử thách tư duy</h2>';
+  field(card,{label:'Làm thế nào để kịch bản xuất sắc có thể diễn ra?',path:'p6.giaithich_xuatsac',type:'textarea',reason:true});
+  field(card,{label:'Khi rơi vào kịch bản bi quan, bạn sẽ làm gì để đi từ bi quan lên xuất sắc?',path:'p6.giaithich_bipquan_hanhdong',type:'textarea',reason:true});
+
+  renderWarnings(card);
+}
+
+/* ============ PHẦN 7 — CAPEX ============ */
+function renderPhan7(card){
+  card.innerHTML = '<h1>Phần 7 — Vốn đầu tư (CAPEX) — chống phát sinh vốn</h1><p class="subtitle">Không bỏ trống nhóm nào. Mỗi dòng chọn độ tin cậy Chính thức/Ước tính.</p>';
+  const groups = ['Mặt bằng — Đặt cọc thuê','Mặt bằng — Phí chuyển nhượng','Thiết kế & thi công — Thiết kế nội thất','Thiết kế & thi công — Thi công sửa chữa',
+    'Thiết kế & thi công — Điện nước','Thiết kế & thi công — PCCC/thoát khói','Bếp & thiết bị — Bếp công nghiệp','Bếp & thiết bị — Tủ lạnh/đông/mát',
+    'Bếp & thiết bị — Máy móc chuyên dụng','Bếp & thiết bị — Hệ thống hút mùi','Nội thất khu khách — Bàn ghế','Nội thất khu khách — Quầy thu ngân',
+    'Nội thất khu khách — Đèn, trang trí','Vận hành ban đầu — POS/phần mềm','Vận hành ban đầu — Chén bát dao kéo','Vận hành ban đầu — Đồng phục',
+    'Thương hiệu — Bảng hiệu','Thương hiệu — Nhận diện thương hiệu','Pháp lý — Đăng ký KD/ATTP/PCCC','Marketing khai trương — Ngân sách mở hàng'];
+  let items = get('p7.items', groups.map(g=>({nhom:g.split(' — ')[0], ten:g.split(' — ')[1], chiphi:'', dotincay:'Ước tính'})));
+  const tbl = document.createElement('table');
+  tbl.innerHTML = '<tr><th>Nhóm</th><th>Hạng mục</th><th>Chi phí (VNĐ)</th><th>Độ tin cậy</th></tr>';
+  const statGrid = document.createElement('div'); statGrid.className='stat-grid'; statGrid.style.marginTop='14px';
+  const wordsDiv = document.createElement('p'); wordsDiv.className = 'small-note'; wordsDiv.style.fontSize='13px';
+  const vonDiv = document.createElement('div');
+
+  function recomputeP7(){
+    const {totalCapex, ratio, pct, duphongVon, vonluudong, tongVon} = computeTongVonDauTu();
+    statGrid.innerHTML = '<div class="stat"><div class="l">Tổng CAPEX (20 hạng mục)</div><div class="v">'+totalCapex.toLocaleString('vi-VN')+' đ</div></div>'+
+      '<div class="stat"><div class="l">Tỷ lệ dòng "Ước tính"</div><div class="v">'+Math.round(ratio*100)+'%</div></div>'+
+      '<div class="stat"><div class="l">Dự phòng phát sinh đề xuất ('+Math.round(pct*100)+'%)</div><div class="v">'+duphongVon.toLocaleString('vi-VN')+' đ</div></div>'+
+      '<div class="stat"><div class="l">Tổng vốn đầu tư (CAPEX+dự phòng+vốn lưu động)</div><div class="v">'+tongVon.toLocaleString('vi-VN')+' đ</div></div>';
+    wordsDiv.innerHTML = tongVon>0 ? '<b>Bằng chữ:</b> '+numberToVietnameseWords(tongVon) : '';
+    set('p7._tongCapex', tongVon);
+    const vonKhaDung = Number(get('p7.von_khonglai',0)) + Number(get('p7.von_colai',0));
+    if(tongVon>0 && (get('p7.von_khonglai',0)>0 || get('p7.von_colai',0)>0)){
+      const okVon = vonKhaDung >= tongVon;
+      vonDiv.className = okVon ? 'ok-msg' : 'warning';
+      vonDiv.innerHTML = (okVon ? '✓ Vốn khả dụng (không lãi + có lãi) đủ đáp ứng tổng vốn đầu tư cần thiết.' : '⚠️ Vốn khả dụng ('+vonKhaDung.toLocaleString('vi-VN')+' đ) CHƯA đủ so với tổng vốn đầu tư cần ('+tongVon.toLocaleString('vi-VN')+' đ). Thiếu '+(tongVon-vonKhaDung).toLocaleString('vi-VN')+' đ.');
+    } else { vonDiv.innerHTML=''; vonDiv.className=''; }
+  }
+
+  items.forEach((it,i)=>{
+    const tr = document.createElement('tr');
+    const tdN = document.createElement('td'); tdN.textContent = it.nhom; tdN.style.fontSize='12px'; tdN.style.color='var(--text-muted)';
+    const tdT = document.createElement('td'); tdT.textContent = it.ten;
+    const tdC = document.createElement('td');
+    const inpC = document.createElement('input'); inpC.type='number'; inpC.value = it.chiphi;
+    inpC.oninput = ()=>{ items[i].chiphi = inpC.value; set('p7.items', items); recomputeP7(); };
+    tdC.appendChild(inpC);
+    const tdD = document.createElement('td');
+    const sel = document.createElement('select');
+    sel.innerHTML = '<option'+(it.dotincay==='Chính thức'?' selected':'')+'>Chính thức</option><option'+(it.dotincay==='Ước tính'?' selected':'')+'>Ước tính</option>';
+    sel.onchange = ()=>{ items[i].dotincay = sel.value; set('p7.items', items); recomputeP7(); };
+    tdD.appendChild(sel);
+    tr.appendChild(tdN); tr.appendChild(tdT); tr.appendChild(tdC); tr.appendChild(tdD);
+    tbl.appendChild(tr);
+  });
+  set('p7.items', items);
+  card.appendChild(tbl);
+  card.appendChild(statGrid);
+  card.appendChild(wordsDiv);
+
+  const upLabel = document.createElement('label'); upLabel.style.marginTop='14px'; upLabel.textContent='Tải lên bảng dự toán Excel của bạn (nếu có, không bắt buộc)';
+  card.appendChild(upLabel);
+  const upEx = document.createElement('input'); upEx.type='file'; upEx.accept='.xlsx,.xls';
+  upEx.onchange = (e)=>{ if(e.target.files[0]){ set('p7.excelFile', e.target.files[0].name); upStatus.textContent='Đã tải lên: '+e.target.files[0].name; upStatus.className='ok-msg'; } };
+  card.appendChild(upEx);
+  const upStatus = document.createElement('div'); upStatus.style.marginTop='6px';
+  if(get('p7.excelFile')){ upStatus.className='ok-msg'; upStatus.textContent='Đã tải lên: '+get('p7.excelFile'); }
+  card.appendChild(upStatus);
+
+  field(card,{label:'Vốn lưu động dự phòng tính theo bao nhiêu tháng OPEX?',path:'p7.sothangduphong',type:'number',onChange:recomputeP7});
+  field(card,{label:'Vì sao chọn số tháng đó? Các dòng "Ước tính" — kế hoạch xin báo giá chính thức là gì?',path:'p7.giaithich',type:'textarea',reason:true});
+  field(card,{label:'Bằng chứng (mô tả báo giá/hợp đồng đã có cho các dòng Chính thức)',path:'p7.bangchung'});
+
+  card.innerHTML += '<h2 style="margin-top:22px">7.3 Cơ cấu nguồn vốn — tiền này lấy từ đâu?</h2>'+
+    '<p class="subtitle">Phân biệt rõ 3 loại — rất nhiều người khởi nghiệp gộp chung thành "vốn" mà quên bản chất rủi ro khác nhau hoàn toàn.</p>';
+  field(card,{label:'Vốn KHÔNG lãi (tiết kiệm cá nhân, gia đình cho/góp không tính lãi)',path:'p7.von_khonglai',type:'money',onChange:recomputeP7});
+  field(card,{label:'Nguồn này chắc chắn tới mức nào? Từ ai, đã xác nhận chưa?',path:'p7.giaithich_khonglai',type:'textarea',reason:true});
+  field(card,{label:'Vốn CÓ lãi (vay ngân hàng, vay có tính lãi)',path:'p7.von_colai',type:'money',onChange:recomputeP7});
+  field(card,{label:'Lãi suất vay (%/năm)',path:'p7.laisuat',type:'number'});
+  field(card,{label:'Vay từ đâu? Điều kiện trả nợ, thời hạn ân hạn (nếu có)?',path:'p7.giaithich_colai',type:'textarea',reason:true});
+  field(card,{label:'Vốn có thể huy động THÊM nếu gặp tình huống khẩn cấp (không tính vào vốn ban đầu)',path:'p7.von_duphongthem',type:'money'});
+  field(card,{label:'Từ đâu, điều kiện gì để thực sự huy động được khi cần? (Không phải hy vọng suông)',path:'p7.giaithich_duphongthem',type:'textarea',reason:true});
+  card.appendChild(vonDiv);
+
+  card.innerHTML += '<h2 style="margin-top:22px">Thử thách tư duy</h2>';
+  field(card,{label:'Bạn chắc chắn bảng dự toán này đủ bao nhiêu % hạng mục thực tế?',path:'p7.tt_phantram',type:'textarea',reason:true});
+  field(card,{label:'Bạn đã làm gì để có một bảng dự toán vốn đầu tư đạt độ chính xác cao?',path:'p7.tt_congviec',type:'textarea',reason:true});
+  field(card,{label:'Bạn có chắc chắn rằng bạn sẽ không bị phát sinh vốn?',path:'p7.tt_chacchan',type:'textarea',reason:true});
+  field(card,{label:'Bạn làm bảng này trong bao lâu?',path:'p7.tt_thoigian',type:'textarea',reason:true});
+  field(card,{label:'Bạn đã nghiên cứu những đâu để có kiến thức làm bảng này?',path:'p7.tt_nghiencuu',type:'textarea',reason:true});
+  field(card,{label:'Bạn làm gì để kiểm soát được sự cố phát sinh vốn?',path:'p7.tt_kiemsoat',type:'textarea',reason:true});
+
+  recomputeP7();
+}
+
+/* ============ PHẦN 8 — OPEX ============ */
+function renderPhan8(card){
+  card.innerHTML = '<h1>Phần 8 — Chi phí vận hành hàng tháng (OPEX)</h1>';
+  const statTotal = document.createElement('div'); statTotal.className='stat'; statTotal.style.marginTop='10px';
+  const thueNote = document.createElement('div');
+
+  function recomputeP8(){
+    const doanhthuThang = Number(get('p6.kb_tb_doanhthu',0));
+    const nvlPct = Number(get('p8.nvl_pct',0));
+    const nvlMoney = doanhthuThang * nvlPct/100;
+    set('p8.nvl', Math.round(nvlMoney));
+    const total = computeOpexFixedPart() + nvlMoney;
+    statTotal.innerHTML = '<div class="l">Tổng OPEX/tháng</div><div class="v">'+Math.round(total).toLocaleString('vi-VN')+' đ</div>';
+    const thue = Number(get('p8.thue',0));
+    if(doanhthuThang>0 && thue>0){
+      const tyle = thue/doanhthuThang*100;
+      const ok = tyle>=3 && tyle<=10;
+      thueNote.className = ok ? 'ok-msg' : 'warning';
+      thueNote.innerHTML = 'Tỷ lệ thuê mặt bằng/doanh thu mục tiêu: <b>'+tyle.toFixed(1)+'%</b> — '+(ok?'nằm trong khoảng tham chiếu 3-10%.':'nên nằm trong khoảng 3-10% doanh thu, kiểm tra lại giá thuê hoặc doanh thu mục tiêu.');
+    } else { thueNote.innerHTML=''; thueNote.className=''; }
+  }
+
+  field(card,{label:'Thuê mặt bằng (VNĐ/tháng)',path:'p8.thue',type:'money',onChange:recomputeP8});
+  card.appendChild(thueNote);
+  field(card,{label:'Nguyên vật liệu — food cost (% trên doanh thu mục tiêu/tháng)',path:'p8.nvl_pct',type:'number',onChange:recomputeP8});
+  const nvlMoneyNote = document.createElement('div'); nvlMoneyNote.className='small-note';
+  card.appendChild(nvlMoneyNote);
+  field(card,{label:'Nhân sự — lương + bảo hiểm (VNĐ/tháng)',path:'p8.nhansu',type:'money',onChange:recomputeP8});
+  field(card,{label:'Điện nước (VNĐ/tháng)',path:'p8.diennuoc',type:'money',onChange:recomputeP8});
+  field(card,{label:'Marketing (VNĐ/tháng)',path:'p8.marketing_chiphi',type:'money',onChange:recomputeP8});
+  field(card,{label:'Chi phí khác (VNĐ/tháng)',path:'p8.khac',type:'money',onChange:recomputeP8});
+  card.appendChild(statTotal);
+
+  const origRecompute = recomputeP8;
+  function recomputeP8Full(){
+    origRecompute();
+    nvlMoneyNote.textContent = 'Tương đương '+Math.round(Number(get('p8.nvl',0))).toLocaleString('vi-VN')+' đ/tháng';
+  }
+  recomputeP8Full();
+  // gắn lại onChange các field nvl_pct/thue để gọi bản đầy đủ
+  card.querySelectorAll('input').forEach(inp=>{});
+
+  renderWarnings(card);
+}
+
+/* ============ PHẦN 9 — ĐIỂM HOÀ VỐN ============ */
+function renderPhan9(card){
+  card.innerHTML = '<h1>Phần 9 — Điểm hoà vốn</h1><p class="subtitle">Tự động tính từ dữ liệu Phần 6 và Phần 8.</p>';
+
+  const missing = [];
+  if(!filled(get('p6.giatrihd'))) missing.push({label:'Giá trị hoá đơn TB (Phần 6)', idx: SECTIONS.findIndex(s=>s.id==='p6')});
+  if(!(get('p6.ca',[])||[]).some(c=>filled(c.khach))) missing.push({label:'Số khách kỳ vọng theo khung giờ (Phần 6)', idx: SECTIONS.findIndex(s=>s.id==='p6')});
+  if(!filled(get('p8.thue'))) missing.push({label:'Thuê mặt bằng (Phần 8)', idx: SECTIONS.findIndex(s=>s.id==='p8')});
+  if(!filled(get('p8.nvl_pct'))) missing.push({label:'Nguyên vật liệu % (Phần 8)', idx: SECTIONS.findIndex(s=>s.id==='p8')});
+
+  if(missing.length){
+    const warnDiv = document.createElement('div');
+    warnDiv.className = 'warning';
+    warnDiv.innerHTML = '⚠️ Chưa đủ dữ liệu để tính điểm hoà vốn chính xác. Cần điền: ';
+    missing.forEach(m=>{
+      const btn = document.createElement('button');
+      btn.className = 'btn-link'; btn.style.marginLeft='6px'; btn.textContent = m.label;
+      btn.onclick = ()=>{ currentIndex = m.idx; render(); };
+      warnDiv.appendChild(btn);
+    });
+    card.appendChild(warnDiv);
+  }
+
+  const be = computeBreakeven();
+  card.innerHTML += '<p class="subtitle">Công thức: Chi phí cố định / (1 − Chi phí biến đổi/Doanh thu)</p>';
+  const statGrid = document.createElement('div'); statGrid.className='stat-grid';
+  statGrid.innerHTML = '<div class="stat"><div class="l">Doanh thu hoà vốn/tháng</div><div class="v">'+be.revenue.toLocaleString('vi-VN')+' đ</div></div>'+
+    '<div class="stat"><div class="l">Tổng OPEX/tháng (Phần 8)</div><div class="v">'+Math.round(be.opexTotal).toLocaleString('vi-VN')+' đ</div></div>';
+  card.appendChild(statGrid);
+  field(card,{label:'Số suất bán cần đạt/ngày để hoà vốn',path:'p9.soxuat',type:'number'});
+  field(card,{label:'Thời gian dự kiến đạt hoà vốn (tháng)',path:'p9.thoigian',type:'number'});
+  field(card,{label:'So sánh với kịch bản bi quan Phần 6 — nếu thấp hơn breakeven, phương án xử lý là gì?',path:'p9.giaithich',type:'textarea',reason:true});
+  renderWarnings(card);
+}
+
+/* ============ PHẦN 11 — DÒNG TIỀN 6 THÁNG (ramp công suất) ============ */
+function renderPhan11(card){
+  card.innerHTML = '<h1>Phần 10 — Dòng tiền 6 tháng đầu (lộ trình công suất)</h1><p class="subtitle">Chỉ cần điền % công suất đạt được mỗi tháng — thu, chi, lợi nhuận tự nhảy.</p>';
+  let rows = get('p11.thang', [1,2,3,4,5,6].map(n=>({thang:'Tháng '+n, congsuat:''})));
+  set('p11.thang', rows);
+  const tbl = document.createElement('table');
+  tbl.innerHTML = '<tr><th>Tháng</th><th>Công suất đạt được (%)</th><th>Thu</th><th>Chi</th><th>Lợi nhuận</th><th>Luỹ kế</th></tr>';
+  const cells = [];
+  rows.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    const tdT = document.createElement('td'); tdT.textContent = r.thang;
+    const tdCS = document.createElement('td'); const inp = document.createElement('input'); inp.type='number'; inp.value=r.congsuat;
+    inp.oninput = ()=>{ rows[i].congsuat = inp.value; set('p11.thang', rows); recomputeP11(); };
+    tdCS.appendChild(inp);
+    const tdThu = document.createElement('td'); const spanThu=document.createElement('span'); spanThu.className='auto-cell'; tdThu.appendChild(spanThu);
+    const tdChi = document.createElement('td'); const spanChi=document.createElement('span'); spanChi.className='auto-cell'; tdChi.appendChild(spanChi);
+    const tdLN = document.createElement('td'); const spanLN=document.createElement('span'); spanLN.className='auto-cell'; tdLN.appendChild(spanLN);
+    const tdCum = document.createElement('td'); const spanCum=document.createElement('span'); spanCum.className='auto-cell'; tdCum.appendChild(spanCum);
+    cells.push({spanThu,spanChi,spanLN,spanCum});
+    tr.appendChild(tdT); tr.appendChild(tdCS); tr.appendChild(tdThu); tr.appendChild(tdChi); tr.appendChild(tdLN); tr.appendChild(tdCum);
+    tbl.appendChild(tr);
+  });
+  card.appendChild(tbl);
+
+  function recomputeP11(){
+    const computed = computeThang11();
+    computed.forEach((r,i)=>{
+      cells[i].spanThu.textContent = Math.round(r.thu).toLocaleString('vi-VN')+' đ';
+      cells[i].spanChi.textContent = Math.round(r.chi).toLocaleString('vi-VN')+' đ';
+      cells[i].spanLN.textContent = Math.round(r.loinhuan).toLocaleString('vi-VN')+' đ';
+      cells[i].spanCum.textContent = Math.round(r.cum).toLocaleString('vi-VN')+' đ';
+    });
+  }
+  recomputeP11();
+
+  field(card,{label:'Tháng nào âm sâu nhất? Vốn dự phòng Phần 7 có đủ che không?',path:'p11.giaithich',type:'textarea',reason:true});
+  renderWarnings(card);
+}
+
+function renderWarnings(card){
+  const warns = crossChecks();
+  warns.forEach(w=>{
+    const div = document.createElement('div');
+    div.className = 'warning';
+    div.innerHTML = '⚠️ ' + w;
+    card.appendChild(div);
+  });
+}
+
+/* ============ FOOD COST EXCEL ============ */
+function downloadFoodCostTemplate(){
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['Món','Nguyên liệu','Định lượng/suất','Đơn vị','Đơn giá (VNĐ)','Thành tiền (VNĐ)','Giá bán (VNĐ)'],
+    ['VD: Phở bò','Bánh phở','200','g','40','8000','45000'],
+    ['VD: Phở bò','Thịt bò','100','g','300','30000',''],
+    ['','','','','','',''],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, 'FoodCost');
+  XLSX.writeFile(wb, 'template-foodcost-andy-academy.xlsx');
+}
+function handleFoodCostUpload(e, card){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    const wb = XLSX.read(evt.target.result, {type:'binary'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    const required = ['Món','Nguyên liệu','Định lượng/suất','Đơn giá (VNĐ)','Thành tiền (VNĐ)','Giá bán (VNĐ)'];
+    const cols = rows.length ? Object.keys(rows[0]) : [];
+    const missing = required.filter(r=>!cols.includes(r));
+    const status = document.getElementById('foodcost-status');
+    if(missing.length){
+      status.className='warning'; status.innerHTML='⚠️ File thiếu cột: '+missing.join(', ')+'. Vui lòng dùng đúng template và nộp lại.';
+      return;
+    }
+    const validRows = rows.filter(r=>r['Món']);
+    const byMon = {};
+    validRows.forEach(r=>{
+      const mon = r['Món'];
+      if(!byMon[mon]) byMon[mon] = {cost:0, gia: Number(r['Giá bán (VNĐ)'])||0};
+      byMon[mon].cost += Number(r['Thành tiền (VNĐ)'])||0;
+      if(r['Giá bán (VNĐ)']) byMon[mon].gia = Number(r['Giá bán (VNĐ)']);
+    });
+    const monNames = Object.keys(byMon);
+    if(monNames.length < 5){
+      status.className='warning'; status.innerHTML='⚠️ Cần tối thiểu 5 món, file hiện chỉ có '+monNames.length+' món.';
+      return;
+    }
+    let sumPct = 0, countPct = 0, avgGia = 0;
+    monNames.forEach(m=>{
+      if(byMon[m].gia>0){ sumPct += byMon[m].cost/byMon[m].gia; countPct++; avgGia += byMon[m].gia; }
+    });
+    const avgFoodCost = countPct ? Math.round((sumPct/countPct)*1000)/10 : 0;
+    avgGia = countPct ? Math.round(avgGia/countPct) : 0;
+    set('p4.filename', file.name);
+    set('p4.avgFoodCost', avgFoodCost);
+    set('p4.soMon', monNames.length);
+    set('p4.giaBanTB', avgGia);
+    status.className='ok-msg';
+    status.innerHTML = 'Đã nộp: '+file.name+' — '+monNames.length+' món — Food cost % trung bình: <b>'+avgFoodCost+'%</b>';
+  };
+  reader.readAsBinaryString(file);
+}
+
+/* ============ REVIEW & XUẤT WORD ============ */
+function checklistStatus(){
+  const items = [
+    {label:'Đủ các phần, không phần nào bỏ trống', ok: SECTIONS.filter(s=>!s.gate&&s.id!=='review').every(s=>isDone(s.id))},
+    {label:'Đã đi qua các kiểm tra kiến thức (vượt hoặc chọn bỏ qua)', ok: Object.keys(GATES).every(g=>gatesPassedState[g])},
+    {label:'Đã tích đủ Cam kết trách nhiệm', ok: !!gatesPassedState['terms']},
+    {label:'Phần 4: đã nộp file food cost hợp lệ, tối thiểu 5 món', ok: !!get('p4.filename') && get('p4.soMon',0)>=5},
+    {label:'Phần 3: tối thiểu 3 đối thủ', ok: get('p3.doithu',[]).length>=3},
+    {label:'Phần 14: tối thiểu 3 rủi ro', ok: get('p15.ruiro',[]).length>=3},
+    {label:'Phần 2: tổng tỷ trọng các nhóm khách hàng ≈ 100%', ok: (()=>{ const n=get('p2.nhom',[]); const t=n.reduce((a,b)=>a+Number(b.tytrong||0),0); return t>=95&&t<=105; })()},
+    {label:'Không còn cảnh báo kiểm tra chéo nào', ok: crossChecks().length===0},
+  ];
+  return items;
+}
+function skippedGatesList(){ return skippedGates(); }
+
+function renderReview(card){
+  card.innerHTML = '<h1>Phản biện & Xuất kế hoạch</h1>'+
+    '<div class="serious-banner">"Đây là lúc quyết định: bạn làm bản kế hoạch này cho có, hay làm nó để thật sự đi mở quán? Không ai kiểm tra bạn ngoài chính bạn — nhưng vốn thật, tiền thật sẽ không nương tay nếu bạn làm qua loa."</div>'+
+    '<p class="subtitle">Kiểm tra cứng tự động trước khi mở khoá lớp phản biện.</p>';
+
+  const mucTieu = Number(get('p0c.loinhuan_mucTieu',0));
+  const thucTe = computeProfit();
+  if(mucTieu){
+    const dat = thucTe >= mucTieu*0.8;
+    const dreamDiv = document.createElement('div');
+    dreamDiv.className = dat ? 'ok-msg' : 'warning';
+    dreamDiv.innerHTML = (dat ? '🎯 Kế hoạch của bạn đang tiến sát mục tiêu bạn đặt ra ban đầu! ' : '⏳ Chưa chạm tới mục tiêu bạn đặt ra ban đầu. ')+
+      '<br>Mục tiêu lợi nhuận: <b>'+mucTieu.toLocaleString('vi-VN')+' đ/tháng</b> — Kế hoạch hiện tại tạo ra: <b>'+Math.round(thucTe).toLocaleString('vi-VN')+' đ/tháng</b>.';
+    card.appendChild(dreamDiv);
+  }
+
+  const quymoVonUocLuong = Number(get('p0.quymovon',0));
+  const {tongVon: tongVonThucTe} = computeTongVonDauTu();
+  if(quymoVonUocLuong && tongVonThucTe){
+    const lech = Math.abs(tongVonThucTe - quymoVonUocLuong) / quymoVonUocLuong;
+    const khopVon = lech <= 0.25;
+    const vonCompareDiv = document.createElement('div');
+    vonCompareDiv.className = khopVon ? 'ok-msg' : 'warning';
+    vonCompareDiv.innerHTML = (khopVon ? '✓ Ước lượng vốn ban đầu khá sát với tính toán chi tiết. ' : '⚠️ Ước lượng vốn ban đầu lệch khá xa so với tính toán chi tiết — bình thường ở lần đầu làm kế hoạch, nhưng đáng để nhìn lại. ')+
+      '<br>Ước lượng ban đầu (Phần 0): <b>'+quymoVonUocLuong.toLocaleString('vi-VN')+' đ</b> — Tính toán chi tiết thực tế (Phần 7): <b>'+Math.round(tongVonThucTe).toLocaleString('vi-VN')+' đ</b>.';
+    card.appendChild(vonCompareDiv);
+  }
+
+  const vbCard = document.createElement('div');
+  vbCard.style.marginTop='16px';
+  vbCard.innerHTML = '<h2>Vision Board — cuộc sống mơ ước của bạn</h2>'+
+    '<p class="subtitle">Con số phía trên chưa phải là thực tế — quán chưa mở thì chưa ai biết chắc. Nhưng nó không còn là tưởng tượng suông nữa: đó là con số được tính từ chính những giả định bạn đã phải chứng minh trong suốt kế hoạch này. Giờ hãy vẽ bằng chữ: gia đình, tài chính, sức khoẻ, thời gian tự do... trong đó dự án F&B này đóng vai trò gì, và vì sao cuộc sống đó khiến bạn thật sự hạnh phúc.</p>';
+  card.appendChild(vbCard);
+  field(vbCard,{label:'Mô tả vision board của bạn',path:'p0c.visionboard',type:'textarea'});
+  const vbTextarea = vbCard.querySelector('textarea');
+  if(vbTextarea) vbTextarea.style.minHeight = '160px';
+
+  const skipped = skippedGatesList();
+  if(skipped.length){
+    const skipDiv = document.createElement('div');
+    skipDiv.className = 'warning';
+    skipDiv.innerHTML = '⏭ Đã bỏ qua kiểm tra kiến thức (chọn "Em sẽ chứng minh ạ") ở: <b>'+skipped.join(', ')+'</b> — nội dung phần tương ứng cần đủ chặt chẽ để tự chứng minh trong lớp phản biện.';
+    card.appendChild(skipDiv);
+  }
+
+  const items = checklistStatus();
+  items.forEach(it=>{
+    const div = document.createElement('div');
+    div.className = it.ok ? 'ok-msg' : 'warning';
+    div.textContent = (it.ok?'✓ ':'⚠️ ') + it.label;
+    card.appendChild(div);
+  });
+  const allOk = items.every(i=>i.ok);
+  const noteAI = document.createElement('div');
+  noteAI.className = 'small-note';
+  noteAI.style.marginTop='14px';
+  noteAI.innerHTML = 'Lớp phản biện AI (đóng vai nhà đầu tư khó tính) và chấm mềm theo rubric sẽ được bật khi tích hợp API — hiện tại phần khung đã sẵn sàng, chờ Andy duyệt rubric + bài mẫu.';
+  card.appendChild(noteAI);
+
+  const exportBtn = document.createElement('button');
+  exportBtn.className = 'btn btn-primary';
+  exportBtn.style.marginTop = '16px';
+  exportBtn.textContent = allOk ? '⬇ Xuất kế hoạch ra Word' : '⬇ Xuất bản nháp (chưa qua hết kiểm tra)';
+  exportBtn.onclick = exportWord;
+  card.appendChild(exportBtn);
+}
+
+function exportWord(){
+  const esc = (s)=> (s||'').toString().replace(/</g,'&lt;').replace(/\n/g,'<br>');
+  let html = '<html><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial,sans-serif;font-size:14px;line-height:1.5">';
+  html += '<h1 style="text-align:center">KẾ HOẠCH KINH DOANH</h1>';
+  html += '<h2 style="text-align:center">'+esc(get('p1.ten','[Chưa đặt tên]'))+'</h2>';
+  html += '<p style="text-align:center;color:#666">Andy Pham Academy — Khởi Sự F&B Thực Chiến APA</p><hr>';
+
+  function h(t){ html += '<h2>'+esc(t)+'</h2>'; }
+  function kv(k,v){ html += '<p><b>'+esc(k)+':</b> '+esc(v)+'</p>'; }
+
+  h('Thông tin học viên');
+  kv('Họ và tên', get('p0.hoten')); kv('Số điện thoại', get('p0.sdt')); kv('Email', get('p0.email'));
+  kv('Lý do tham gia khoá học', get('p0.lydo')); kv('Mục tiêu sau khoá học', get('p0.muctieu'));
+  kv('Quy mô vốn dự kiến (ước lượng ban đầu)', get('p0.quymovon')+' đ');
+
+  h('Mục tiêu & Vision Board');
+  kv('Mục tiêu lợi nhuận/tháng', get('p0c.loinhuan_mucTieu')+' đ');
+  kv('Vision board', get('p0c.visionboard'));
+  kv('Lợi nhuận thực tế kế hoạch tạo ra/tháng', Math.round(computeProfit()).toLocaleString('vi-VN')+' đ');
+
+  h('1. Mô hình kinh doanh');
+  kv('Tên thương hiệu', get('p1.ten')); kv('Slogan', get('p1.slogan'));
+  kv('Giá trị mới mang lại', get('p1.giatri_moi'));
+  kv('Loại hình', get('p1.loaihinh')); kv('Phân khúc giá', get('p1.phankhuc'));
+  kv('Bình quân chi tiêu/khách', get('p1.binhquan')+' đ');
+  kv('Menu', get('p1.menu')); kv('Mô tả concept', get('p1.motaconcept'));
+  kv('USP', get('p1.usp'));
+  kv('Giải thích', get('p1.giaithich'));
+
+  h('2. Thị trường & khách hàng');
+  kv('Đặc thù kinh tế khu vực', get('p2.dacthu'));
+  kv('Quy mô thị trường F&B', get('p2.quymothitruong'));
+  kv('Hoạt động kinh tế/chính trị ảnh hưởng', get('p2.hoatdong'));
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Nhóm</th><th>Đặc điểm</th><th>Tỷ trọng %</th><th>Dịp sử dụng</th></tr>';
+  (get('p2.nhom',[])).forEach(n=>{ html+='<tr><td>'+esc(n.ten)+'</td><td>'+esc(n.dacdiem)+'</td><td>'+esc(n.tytrong)+'</td><td>'+esc(n.dip)+'</td></tr>'; });
+  html += '</table>';
+  kv('Cách nhận diện nhóm khách hàng', get('p2.giaithich_nhandien'));
+  kv('Vì sao khu vực tồn tại các nhóm này', get('p2.giaithich_tontai'));
+  kv('Quy mô khách hàng tiềm năng/ngày', get('p2.quymo'));
+
+  h('3. Đối thủ cạnh tranh');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Đối thủ</th><th>Quy mô (ghế)</th><th>Giá TB</th><th>Khách/ngày</th><th>DT/tháng (tự tính)</th><th>Lý do thành công</th><th>Điểm yếu</th></tr>';
+  (get('p3.doithu',[])).forEach(d=>{
+    const dt = Number(d.giaTB||0)*Number(d.khachngay||0)*30;
+    html+='<tr><td>'+esc(d.ten)+'</td><td>'+esc(d.quymo)+'</td><td>'+esc(d.giaTB)+'</td><td>'+esc(d.khachngay)+'</td><td>'+Math.round(dt).toLocaleString('vi-VN')+' đ</td><td>'+esc(d.thanhcong)+'</td><td>'+esc(d.yeukem)+'</td></tr>';
+  });
+  html += '</table>';
+  kv('Vì sao khách chọn mình', get('p3.giaithich'));
+
+  h('4. Sản phẩm & giá');
+  kv('File food cost đã nộp', get('p4.filename'));
+  kv('Food cost % trung bình', get('p4.avgFoodCost')+'%');
+  kv('Giải thích food cost', get('p4.giaithich'));
+  kv('Chiến lược giá', get('p4.giaithich_gia'));
+
+  h('5. Địa điểm & mặt bằng');
+  kv('Địa chỉ', get('p5.diachi')); kv('Diện tích', get('p5.dientich')+' m²');
+  kv('Giá thuê/tháng', get('p5.giathue')+' đ'); kv('Số chỗ ngồi', get('p5.sochongoi'));
+  kv('Giải thích', get('p5.giaithich'));
+
+  h('6. Dự báo doanh thu');
+  const kb = computeKichBan();
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Khung giờ</th><th>Giờ</th><th>Khách kỳ vọng</th><th>Doanh thu ca</th></tr>';
+  (get('p6.ca',[])).forEach(c=>{ html+='<tr><td>'+esc(c.ten)+'</td><td>'+esc(c.gioBD)+' - '+esc(c.gioKT)+'</td><td>'+esc(c.khach)+'</td><td>'+Math.round(Number(c.khach||0)*Number(get('p6.giatrihd',0))).toLocaleString('vi-VN')+' đ</td></tr>'; });
+  html += '</table>';
+  kv('Tổng doanh thu/ngày mục tiêu', Math.round(kb.ngayMucTieu).toLocaleString('vi-VN')+' đ');
+  kv('Số ngày mở/tháng', kb.songay);
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th></th><th>Bi quan</th><th>Trung bình</th><th>Xuất sắc</th></tr>'+
+    '<tr><td>Doanh thu/tháng</td><td>'+Math.round(kb.biquanThang).toLocaleString('vi-VN')+' đ</td><td>'+Math.round(kb.tbThang).toLocaleString('vi-VN')+' đ</td><td>'+Math.round(kb.xuatsacThang).toLocaleString('vi-VN')+' đ</td></tr></table>';
+  kv('Làm sao để đạt kịch bản xuất sắc', get('p6.giaithich_xuatsac'));
+  kv('Hành động khi rơi vào bi quan', get('p6.giaithich_bipquan_hanhdong'));
+
+  h('7. Vốn đầu tư (CAPEX)');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Nhóm</th><th>Hạng mục</th><th>Chi phí</th><th>Độ tin cậy</th></tr>';
+  (get('p7.items',[])).forEach(it=>{ html+='<tr><td>'+esc(it.nhom)+'</td><td>'+esc(it.ten)+'</td><td>'+esc(it.chiphi)+'</td><td>'+esc(it.dotincay)+'</td></tr>'; });
+  html += '</table>';
+  kv('Tổng vốn đầu tư (gồm dự phòng)', (get('p7._tongCapex',0)).toLocaleString('vi-VN')+' đ');
+  kv('Giải thích', get('p7.giaithich'));
+  kv('Vốn KHÔNG lãi', get('p7.von_khonglai')+' đ'); kv('Nguồn vốn không lãi', get('p7.giaithich_khonglai'));
+  kv('Vốn CÓ lãi', get('p7.von_colai')+' đ'); kv('Lãi suất', get('p7.laisuat')+'%/năm'); kv('Điều kiện vay', get('p7.giaithich_colai'));
+  kv('Vốn có thể huy động thêm khi khẩn cấp', get('p7.von_duphongthem')+' đ'); kv('Nguồn dự phòng thêm', get('p7.giaithich_duphongthem'));
+
+  h('8. Chi phí vận hành (OPEX)');
+  kv('Thuê mặt bằng', get('p8.thue')+' đ'); kv('Nguyên vật liệu %', get('p8.nvl_pct')+'%'); kv('Nhân sự', get('p8.nhansu')+' đ');
+  kv('Điện nước', get('p8.diennuoc')+' đ'); kv('Marketing', get('p8.marketing_chiphi')+' đ'); kv('Khác', get('p8.khac')+' đ');
+
+  const be = computeBreakeven();
+  h('9. Điểm hoà vốn');
+  kv('Doanh thu hoà vốn/tháng', be.revenue.toLocaleString('vi-VN')+' đ');
+  kv('Số suất bán/ngày để hoà vốn', get('p9.soxuat'));
+  kv('Thời gian dự kiến đạt hoà vốn', get('p9.thoigian')+' tháng');
+  kv('Giải thích', get('p9.giaithich'));
+
+  h('10. Dòng tiền 6 tháng (lộ trình công suất)');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Tháng</th><th>Công suất %</th><th>Thu</th><th>Chi</th><th>Lợi nhuận</th></tr>';
+  computeThang11().forEach(r=>{ html+='<tr><td>'+esc(r.thang)+'</td><td>'+r.congsuat+'%</td><td>'+Math.round(r.thu).toLocaleString('vi-VN')+' đ</td><td>'+Math.round(r.chi).toLocaleString('vi-VN')+' đ</td><td>'+Math.round(r.loinhuan).toLocaleString('vi-VN')+' đ</td></tr>'; });
+  html += '</table>';
+  kv('Giải thích', get('p11.giaithich'));
+
+  h('11. Kế hoạch vận hành');
+  kv('Quy trình phục vụ', get('p12.quytrinh')); kv('Ca làm việc', get('p12.ca')); kv('Kiểm soát chất lượng', get('p12.qc'));
+  kv('Tổng nhân sự', get('p12.nhansu')); kv('Giải thích', get('p12.giaithich'));
+
+  h('12. Marketing & kênh bán');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Kênh</th><th>Ngân sách</th><th>Mục tiêu</th></tr>';
+  (get('p13.kenh',[])).forEach(k=>{ html+='<tr><td>'+esc(k.ten)+'</td><td>'+esc(k.ngansach)+'</td><td>'+esc(k.muctieu)+'</td></tr>'; });
+  html += '</table>'; kv('Giải thích', get('p13.giaithich'));
+
+  h('13. Pháp lý & giấy phép');
+  kv('Loại hình đăng ký', get('p14.loaihinh')); kv('Giấy phép', get('p14.giayphep')); kv('Hợp đồng thuê', get('p14.hopdong'));
+  kv('Giải thích', get('p14.giaithich'));
+
+  h('14. Rủi ro & dự phòng');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Rủi ro</th><th>Xác suất</th><th>Ảnh hưởng</th><th>Phương án</th></tr>';
+  (get('p15.ruiro',[])).forEach(r=>{ html+='<tr><td>'+esc(r.ten)+'</td><td>'+esc(r.xacsuat)+'</td><td>'+esc(r.anhhuong)+'</td><td>'+esc(r.phuongan)+'</td></tr>'; });
+  html += '</table>'; kv('Giải thích', get('p15.giaithich'));
+
+  h('Hồ sơ khởi nghiệp của học viên');
+  kv('Học gì', get('p0b.hocgi')); kv('Từng làm ở đâu, bao lâu', get('p0b.tunglam'));
+  kv('Sở trường', get('p0b.sotruong')); kv('Sở đoản', get('p0b.sodoan'));
+  kv('Tại sao chọn con đường này', get('p0b.tsc_congviec'));
+  kv('Trải nghiệm liên quan đến kinh doanh', get('p0b.kinhnghiem'));
+  kv('Thành tựu từng đạt được', get('p0b.thanhtuu'));
+
+  h('15. Thể chất & năng lượng — tinh thần khởi nghiệp');
+  kv('Điều chưa biết & hành động', get('p15b.chuabiet'));
+  kv('Nền tảng sức khoẻ chuẩn bị', get('p15b.nentang'));
+  kv('Cam kết luyện tập', get('p15b.camket')?'Đã cam kết':'Chưa cam kết');
+  kv('Văn hoá biết ơn', get('p15b.bietontên'));
+
+  h('16. Lộ trình triển khai');
+  html += '<table border="1" cellpadding="5" style="border-collapse:collapse;width:100%"><tr><th>Mốc</th><th>Thời gian</th><th>Công việc</th></tr>';
+  (get('p16.moc',[])).forEach(m=>{ html+='<tr><td>'+esc(m.ten)+'</td><td>'+esc(m.thoigian)+'</td><td>'+esc(m.congviec)+'</td></tr>'; });
+  html += '</table>';
+
+  html += '</body></html>';
+
+  const blob = new Blob(['\ufeff', html], {type:'application/msword'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ke-hoach-kinh-doanh-'+(get('p1.ten','banthao')||'banthao').replace(/[^a-zA-Z0-9]/g,'-')+'.doc';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+/* ============ INIT ============ */
+SECTIONS.filter(s=>!s.gate && s.id!=='review').forEach(s=>{ previousDoneMap[s.id] = isDone(s.id); });
+render();
+</script>
+</body>
+</html>
